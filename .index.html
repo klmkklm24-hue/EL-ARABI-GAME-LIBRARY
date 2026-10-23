@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080b16">
+<title>EL-ARABI | Game Universe</title>
+
+<style>
+:root {
+    --bg: #080b16;
+    --panel: #101629;
+    --blue: #42e8ff;
+    --purple: #9b5cff;
+    --white: #f4f7ff;
+    --muted: #a7b0c8;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--white);
+    background:
+        radial-gradient(ellipse at 15% 10%, #192b55 0%, transparent 38%),
+        radial-gradient(ellipse at 85% 35%, #271443 0%, transparent 35%),
+        var(--bg);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+button, a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.navbar {
+    width: min(1160px, 92%);
+    margin: auto;
+    padding: 24px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+}
+
+.brand-icon {
+    width: 48px;
+    height: 48px;
+    filter: drop-shadow(0 0 12px #42e8ff66);
+}
+
+.brand span {
+    color: var(--blue);
+}
+
+.nav-status {
+    color: #a8fbd1;
+    font-size: 12px;
+    letter-spacing: 1px;
+    border: 1px solid #38d99b55;
+    border-radius: 30px;
+    padding: 10px 14px;
+    background: #38d99b0c;
+}
+
+.hero {
+    width: min(1160px, 92%);
+    min-height: 580px;
+    margin: auto;
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: center;
+    gap: 36px;
+    padding: 45px 0 75px;
+}
+
+.eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 25px;
+}
+
+.eyebrow::before {
+    content: "";
+    width: 28px;
+    height: 2px;
+    background: var(--blue);
+    box-shadow: 0 0 10px var(--blue);
+}
+
+h1 {
+    font-size: clamp(43px, 6vw, 78px);
+    line-height: 0.98;
+    letter-spacing: -3px;
+    font-weight: 900;
+}
+
+h1 .gradient {
+    display: block;
+    margin-top: 12px;
+    background: linear-gradient(90deg, var(--blue), #7e8bff, var(--purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-description {
+    max-width: 520px;
+    margin-top: 26px;
+    color: var(--muted);
+    line-height: 1.9;
+    font-size: 16px;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 32px;
+}
+
+.btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    min-height: 52px;
+    padding: 0 22px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.btn:hover {
+    transform: translateY(-3px);
+}
+
+.btn-primary {
+    color: #071019;
+    background: linear-gradient(100deg, var(--blue), #92f5ff);
+    box-shadow: 0 0 28px #42e8ff30;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 35px #42e8ff65;
+}
+
+.btn-secondary {
+    border: 1px solid #ffffff24;
+    background: #ffffff06;
+}
+
+.btn-secondary:hover {
+    background: #ffffff12;
+}
+
+.hero-art {
+    min-height: 390px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+}
+
+.orbit {
+    position: absolute;
+    width: min(100%, 390px);
+    aspect-ratio: 1;
+    border: 1px solid #42e8ff27;
+    border-radius: 50%;
+    transform: rotate(-25deg) scaleY(0.72);
+    box-shadow: 0 0 50px #7d5cff0b;
+}
+
+.orbit::before,
+.orbit::after {
+    content: "";
+    position: absolute;
+    inset: 18px;
+    border: 1px dashed #9b5cff35;
+    border-radius: 50%;
+}
+
+.orbit::after {
+    inset: 42px;
+    border-style: solid;
+    border-color: #42e8ff20;
+}
+
+.big-logo {
+    width: min(78%, 310px);
+    aspect-ratio: 1;
+    position: relative;
+    display: grid;
+    place-items: center;
+    border-radius: 38px;
+    border: 1px solid #42e8ff55;
+    background: linear-gradient(145deg, #152440, #100d23 72%);
+    box-shadow:
+        0 0 70px #7652ff22,
+        inset 0 0 45px #42e8ff0c;
+    transform: rotate(-5deg);
+}
+
+.big-logo svg {
+    width: 76%;
+    filter: drop-shadow(0 0 20px #42e8ff65);
+}
+
+.logo-caption {
+    position: absolute;
+    bottom: 24px;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--blue);
+}
+
+.float-tag {
+    position: absolute;
+    padding: 12px 15px;
+    border-radius: 12px;
+    background: #11182beF;
+    border: 1px solid #ffffff20;
+    box-shadow: 0 12px 35px #0005;
+    font-size: 12px;
+    font-weight: bold;
+    animation: float 4s ease-in-out infinite;
+}
+
+.tag-one {
+    top: 48px;
+    right: 0;
+    color: var(--blue);
+}
+
+.tag-two {
+    bottom: 58px;
+    left: 0;
+    color: #c6a3ff;
+    animation-delay: -2s;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.stats {
+    width: min(1160px, 92%);
+    margin: 0 auto 75px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border: 1px solid #ffffff12;
+    background: #ffffff05;
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.stat {
+    padding: 24px;
+    text-align: center;
+}
+
+.stat + .stat {
+    border-left: 1px solid #ffffff12;
+}
+
+.stat strong {
+    display: block;
+    font-size: 23px;
+    color: var(--blue);
+    margin-bottom: 8px;
+}
+
+.stat small {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.section {
+    width: min(1160px, 92%);
+    margin: 0 auto;
+    padding-bottom: 85px;
+}
+
+.section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.section-heading h2 {
+    font-size: clamp(26px, 4vw, 36px);
+    margin-top: 10px;
+}
+
+.section-heading p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 10px;
+    line-height: 1.7;
+}
+
+.section-label {
+    color: var(--purple);
+    font-size: 11px;
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.games {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.game-card {
+    position: relative;
+    padding: 25px;
+    min-height: 245px;
+    border: 1px solid #ffffff14;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #151d32, #0d1120);
+    transition: transform 0.25s, border-color 0.25s;
+    overflow: hidden;
+}
+
+.game-card::after {
+    content: "";
+    position: absolute;
+    width: 130px;
+    height: 130px;
+    right: -55px;
+    top: -55px;
+    background: var(--card-glow, #42e8ff);
+    filter: blur(70px);
+    opacity: 0.16;
+    pointer-events: none;
+}
+
+.game-card:hover {
+    transform: translateY(-6px);
+    border-color: #42e8ff70;
+}
+
+.game-icon {
+    width: 55px;
+    height: 55px;
+    display: grid;
+    place-items: center;
+    border-radius: 15px;
+    background: #42e8ff12;
+    border: 1px solid #42e8ff2b;
+    font-size: 28px;
+    margin-bottom: 23px;
+}
+
+.game-card h3 {
+    font-size: 16px;
+    letter-spacing: 0.4px;
+    margin-bottom: 12px;
+}
+
+.game-card p {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.8;
+    min-height: 46px;
+    margin-bottom: 22px;
+}
+
+.game-link {
+    display: inline-block;
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1px;
+}
+
+.game-link:hover {
+    text-decoration: underline;
+}
+
+.rules {
+    width: min(1160px, 92%);
+    margin: 0 auto 70px;
+    padding: 28px;
+    border: 1px solid #9b5cff35;
+    border-radius: 18px;
+    background: linear-gradient(110deg, #9b5cff0c, #42e8ff06);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.rules-icon {
+    font-size: 35px;
+}
+
+.rules h3 {
+    margin-bottom: 8px;
+}
+
+.rules p {
+    color: var(--muted);
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+footer {
+    border-top: 1px solid #ffffff12;
+    padding: 28px 4%;
+    text-align: center;
+    color: #7e89a4;
+    font-size: 12px;
+    line-height: 2;
+}
+
+footer span {
+    color: var(--blue);
+}
+
+@media (max-width: 800px) {
+    .hero {
+        grid-template-columns: 1fr;
+        padding-top: 45px;
+        gap: 10px;
+    }
+
+    .hero-art {
+        min-height: 330px;
+    }
+
+    .big-logo {
+        width: min(65%, 260px);
+    }
+
+    .games {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 520px) {
+    .navbar {
+        padding: 17px 0;
+    }
+
+    .brand {
+        font-size: 14px;
+        gap: 8px;
+    }
+
+    .brand-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .nav-status {
+        font-size: 9px;
+        padding: 8px 10px;
+    }
+
+    .hero {
+        min-height: auto;
+        padding: 55px 0 35px;
+    }
+
+    h1 {
+        letter-spacing: -2px;
+    }
+
+    .hero-description {
+        font-size: 14px;
+    }
+
+    .hero-art {
+        min-height: 290px;
+    }
+
+    .float-tag {
+        font-size: 10px;
+        padding: 10px;
+    }
+
+    .stats {
+        margin-bottom: 60px;
+    }
+
+    .stat {
+        padding: 18px 7px;
+    }
+
+    .stat strong {
+        font-size: 18px;
+    }
+
+    .stat small {
+        font-size: 10px;
+    }
+
+    .games {
+        grid-template-columns: 1fr;
+    }
+
+    .game-card {
+        min-height: auto;
+    }
+
+    .section-heading {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .rules {
+        padding: 20px;
+        align-items: start;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation: none !important;
+        transition: none !important;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <a href="ROU7.HTML" class="brand" aria-label="EL-ARABI Home">
+        <svg class="brand-icon" viewBox="0 0 100 100" role="img" aria-label="A logo">
+            <path d="M50 5 L94 84 L69 84 L50 49 L31 84 L6 84 Z"
+                  fill="none" stroke="#42e8ff" stroke-width="7"
+                  stroke-linejoin="round"/>
+            <path d="M35 67 L65 67" stroke="#9b5cff" stroke-width="7"
+                  stroke-linecap="round"/>
+            <path d="M50 5 L50 32" stroke="#ffffff" stroke-width="4"
+                  stroke-linecap="round"/>
+        </svg>
+        <div>EL-ARABI <span>GAMES</span></div>
+    </a>
+    <div class="nav-status">● GAME ZONE ONLINE</div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="eyebrow">WELCOME TO THE UNIVERSE</div>
+
+            <h1>
+                YOUR GAME.
+                <span class="gradient">YOUR WORLD.</span>
+            </h1>
+
+            <p class="hero-description">
+                Welcome to EL-ARABI GAME LIBRARY — a gaming project
+                made with passion, creativity and a Moroccan spirit.
+                Explore new worlds, challenge yourself, and play your way.
+            </p>
+
+            <div class="actions">
+                <a class="btn btn-primary" href="page2.html">
+                    ▶ ENTER THE LIBRARY
+                </a>
+                <a class="btn btn-secondary" href="#featured">
+                    EXPLORE GAMES ↓
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-art" aria-label="EL-ARABI gaming logo">
+            <div class="orbit"></div>
+
+            <div class="big-logo">
+                <svg viewBox="0 0 200 200" role="img" aria-label="EL-ARABI A logo">
+                    <defs>
+                        <linearGradient id="logoGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#42e8ff"/>
+                            <stop offset="100%" stop-color="#9b5cff"/>
+                        </linearGradient>
+                    </defs>
+                    <path d="M100 15 L185 165 L143 165 L100 88 L57 165 L15 165 Z"
+                          fill="none" stroke="url(#logoGradient)" stroke-width="12"
+                          stroke-linejoin="round"/>
+                    <path d="M72 130 L128 130" stroke="#ffffff" stroke-width="10"
+                          stroke-linecap="round"/>
+                    <path d="M100 15 L100 58" stroke="#ffffff" stroke-width="7"
+                          stroke-linecap="round"/>
+                </svg>
+                <div class="logo-caption">PLAY • EXPLORE • REPEAT</div>
+            </div>
+
+            <div class="float-tag tag-one">⚡ LEVEL UP</div>
+            <div class="float-tag tag-two">🇲🇦 MADE WITH PASSION</div>
+        </div>
+    </section>
+
+    <section class="stats" aria-label="Project highlights">
+        <div class="stat">
+            <strong>04+</strong>
+            <small>GAMES TO EXPLORE</small>
+        </div>
+        <div class="stat">
+            <strong>PC + MOBILE</strong>
+            <small>PLAY YOUR WAY</small>
+        </div>
+        <div class="stat">
+            <strong>100%</strong>
+            <small>GAMING PASSION</small>
+        </div>
+    </section>
+
+    <section class="section" id="featured">
+        <div class="section-heading">
+            <div>
+                <div class="section-label">PICK YOUR NEXT CHALLENGE</div>
+                <h2>Featured Games</h2>
+                <p>Choose your game and jump straight into the action.</p>
+            </div>
+            <a href="page2.html" class="game-link">VIEW GAME LIBRARY ↗</a>
+        </div>
+
+        <div class="games">
+            <article class="game-card" style="--card-glow:#42e8ff">
+                <div class="game-icon">🏃</div>
+                <h3>ARABI RUNNER</h3>
+                <p>Run, dodge obstacles, and see how far you can go.</p>
+                <a class="game-link" href="page3.html">PLAY GAME ↗</a>
+            </article>
+
+            <article class="game-card" style="--card-glow:#ffad42">
+                <div class="game-icon">🏎️</div>
+                <h3>ARABI DRIVER KING</h3>
+                <p>Take the wheel and test your driving skills.</p>
+                <a class="game-link" href="page4.html">PLAY GAME ↗</a>
+            </article>
+
+            <article class="game-card" style="--card-glow:#b65cff">
+                <div class="game-icon">🌃</div>
+                <h3>ARABI DRIFT: CASA</h3>
+                <p>ARABI nights, city roads, drifting and high scores.</p>
+                <a class="game-link" href="page5.html">PLAY GAME ↗</a>
+            </article>
+
+            <article class="game-card" style="--card-glow:#ff4dce">
+                <div class="game-icon">👾</div>
+                <h3>ARABI PHANTOM PROTOCOL</h3>
+                <p>Face robot enemies, survive waves, and power up.</p>
+                <a class="game-link" href="page6.html">PLAY GAME ↗</a>
+            </article>
+
+            <article class="game-card" style="--card-glow:#42e8ff">
+                <div class="game-icon">🎮</div>
+                <h3>THE GAME LIBRARY</h3>
+                <p>Discover the full collection of games in the project.</p>
+                <a class="game-link" href="page2.html">OPEN LIBRARY ↗</a>
+            </article>
+
+            <article class="game-card" style="--card-glow:#9b5cff">
+                <div class="game-icon">🚀</div>
+                <h3>MORE TO COME</h3>
+                <p>The EL-ARABI universe is ready for its next adventure.</p>
+                <a class="game-link" href="page2.html">CLICK POUR TEDKHOL LIBRARY</a>
+            </article>
+        </div>
+    </section>
+
+    <section class="rules">
+        <div class="rules-icon">🧠</div>
+        <div>
+            <h3>PLAY SMART. STAY BALANCED.</h3>
+            <p>
+                Enjoy your games, respect other players, take breaks,
+                get enough sleep, and keep learning. Gaming is more fun
+                when it stays balanced with school, sports, and real life.
+            </p>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p><span>EL-ARABI GAMES</span> · A personal gaming project 🇲🇦</p>
+    <p>Built with creativity, code, and passion.</p>
+</footer>
+
+</body>
+</html>
