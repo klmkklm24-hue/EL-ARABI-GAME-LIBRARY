@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EL-ARABI GAME LIBRARY</title>
+
+<style>
+:root {
+  --bg: #0c1023;
+  --panel: #191f3c;
+  --gold: #ffe45c;
+  --cyan: #46f0ed;
+  --pink: #ff4d88;
+  --text: #f7f8ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 10%, #423080 0, transparent 32%),
+    radial-gradient(circle at 90% 40%, #07545a 0, transparent 30%),
+    var(--bg);
+}
+
+a {
+  text-decoration: none;
+}
+
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+header {
+  padding: 35px 16px 20px;
+  text-align: center;
+}
+
+.logo {
+  font-size: 48px;
+  margin-bottom: 8px;
+  animation: float 3s ease-in-out infinite;
+}
+
+h1 {
+  margin: 0;
+  color: var(--gold);
+  font-size: clamp(28px, 6vw, 48px);
+  text-shadow: 0 0 20px #ffca3a55;
+}
+
+.subtitle {
+  color: #cbd6ff;
+  line-height: 1.7;
+  margin: 12px auto;
+  max-width: 650px;
+}
+
+.tag {
+  display: inline-block;
+  color: var(--cyan);
+  border: 1px solid #46f0ed66;
+  background: #46f0ed12;
+  border-radius: 30px;
+  padding: 8px 15px;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 15px;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #0c1023e8;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #ffffff12;
+}
+
+.nav-link {
+  color: white;
+  background: #252d50;
+  border: 1px solid #ffffff20;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  transition: .2s;
+}
+
+.nav-link:hover {
+  border-color: var(--cyan);
+  transform: translateY(-2px);
+}
+
+main {
+  width: min(1100px, 94%);
+  margin: auto;
+  padding: 15px 0 40px;
+}
+
+.welcome {
+  text-align: center;
+  padding: 25px 15px;
+}
+
+.welcome h2 {
+  font-size: clamp(23px, 4vw, 32px);
+  margin: 0 0 10px;
+}
+
+.welcome p {
+  color: #cbd6ff;
+  line-height: 1.8;
+}
+
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.section-title h2 {
+  margin: 0;
+  color: var(--cyan);
+  font-size: 24px;
+}
+
+.section-title span {
+  color: #aeb9df;
+  font-size: 13px;
+}
+
+.games {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 20px;
+}
+
+.game-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: linear-gradient(150deg, #222b50, #171b34);
+  border: 1px solid #ffffff20;
+  border-radius: 22px;
+  padding: 22px;
+  min-height: 300px;
+  transition: transform .25s, border-color .25s, box-shadow .25s;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--cyan);
+  box-shadow: 0 12px 35px #00000035;
+}
+
+.game-icon {
+  display: grid;
+  place-items: center;
+  height: 125px;
+  font-size: 70px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #6947e8, #183c75);
+}
+
+.runner .game-icon {
+  background: linear-gradient(135deg, #f05b80, #642d96);
+}
+
+.driver .game-icon {
+  background: linear-gradient(135deg, #007f84, #102b5d);
+}
+
+.game-card h3 {
+  margin: 0 0 10px;
+  color: var(--gold);
+  font-size: 22px;
+}
+
+.game-card p {
+  color: #cbd6ff;
+  line-height: 1.7;
+  margin: 0 0 20px;
+  flex: 1;
+}
+
+.play {
+  display: block;
+  width: 100%;
+  text-align: center;
+  border: 0;
+  border-radius: 12px;
+  padding: 13px;
+  color: #10152c;
+  background: var(--gold);
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.play:hover {
+  background: white;
+  transform: scale(1.02);
+}
+
+.runner .play {
+  background: var(--pink);
+  color: white;
+}
+
+.driver .play {
+  background: var(--cyan);
+  color: #10152c;
+}
+
+.new-game {
+  border: 2px dashed #7d86b7;
+  background: #ffffff08;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.new-game .game-icon {
+  width: 115px;
+  height: 115px;
+  background: #ffffff0b;
+  border: 1px solid #ffffff1a;
+  font-size: 55px;
+}
+
+.new-game h3 {
+  color: var(--cyan);
+}
+
+.new-game .play {
+  color: white;
+  background: #6c49d8;
+}
+
+.tips {
+  margin-top: 40px;
+  background: #ffffff09;
+  border: 1px solid #ffffff18;
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.tips h2 {
+  margin-top: 0;
+  color: var(--gold);
+}
+
+.tips ul {
+  padding-left: 24px;
+  line-height: 2;
+  color: #dce2ff;
+}
+
+footer {
+  text-align: center;
+  padding: 25px 15px 35px;
+  color: #aeb9df;
+  border-top: 1px solid #ffffff14;
+  line-height: 1.8;
+}
+
+footer strong {
+  color: var(--gold);
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@media (max-width: 480px) {
+  header { padding-top: 25px; }
+  .game-card { min-height: 280px; }
+  .nav-link { padding: 10px 12px; }
+}
+</style>
+</head>
+
+<body>
+
+<header id="accueil">
+  <div class="logo">🎮</div>
+  <div class="tag">WELCOME TO LIBRARY</div>
+  <h1>EL-ARABI GAME LIBRARY</h1>
+  <p class="subtitle">
+    مرحبا بيك فالعالم ديال الألعاب! 🇲🇦<br>
+    اختار اللعبة ديالك، لعب، جمع النقط واستمتع!
+  </p>
+</header>
+
+<nav>
+  <a class="nav-link" href="#accueil">🏠 Accueil</a>
+  <a class="nav-link" href="#jeux">🎮 Les jeux</a>
+  <a class="nav-link" href="#conseils">⭐ Conseils</a>
+  <a class="nav-link" href="ROU7.HTML">⬅️ Page 1</a>
+</nav>
+
+<main>
+  <section class="welcome">
+    <h2>🔥 يلاه نبداو اللعب!</h2>
+    <p>
+      هادي هي مكتبة الألعاب ديالك.<br>
+      اختار اللعبة اللي عجباتك، وبالتوفيق آ بطل!
+    </p>
+  </section>
+
+  <section id="jeux">
+    <div class="section-title">
+      <h2>🎯 MES JEUX</h2>
+      <span>اختار اللعبة ديالك 👇</span>
+    </div>
+
+    <div class="games">
+
+      <article class="game-card runner">
+        <div class="game-icon">🏃‍♂️</div>
+        <h3>ARABI RUNNER</h3>
+        <p>
+          يلاه أجري! 🏃 تفادى العقبات، جمع النقط،
+          وحاول توصل لأعلى نتيجة.
+        </p>
+        <a class="play" href="page3.html">
+          ▶ JOUER A LBATAL!
+        </a>
+      </article>
+
+      <article class="game-card driver">
+        <div class="game-icon">🚗</div>
+        <h3>ARABI DRIVER</h3>
+        <p>
+         🚦 تفادى السيارات، جمع الفلوس
+          ورد بالك من البوليس اللي كيتبعك! 🚔
+        </p>
+        <a class="play" href="page4.html">
+          ▶ JOUER A LBATAL!
+        </a>
+      </article>
+
+      <article class="game-card">
+        <div class="game-icon">🌃</div>
+        <h3>ARABI DRIFT: CASA</h3>
+        <p>
+         عيش أجواء كازا فالليل! 🏎️
+        تفادى السيارات، جمع العملات،
+        ودير Drift باش تطلع فالمستويات!
+        </p>
+
+  <a class="play" href="page5.html">
+    ▶JOUER A LBATAL
+  </a>
+</article>
+
+      <article class="game-card">
+  <div class="game-icon">👾</div>
+  <h3>ARABI PHANTOM PROTOCOL</h3>
+  <p>
+    دخل للأرينا ديال المستقبل! ⚡
+    واجه الروبوتات، جمع الطاقة،
+    ونجّي راسك من الموجات ديال الأعداء!
+  </p>
+  <a class="play" href="page6.html">
+    ▶JOUER A LBATAL!
+  </a>
+</article>
+
+      <article class="game-card new-game">
+        <div class="game-icon">➕</div>
+        <h3>JEU SUIVANT</h3>
+        <p>
+          عندك لعبة جديدة؟ زيد ملف HTML ديالها،
+          ومن بعد زيد بطاقة جديدة هنا باش تبان فالمكتبة.
+        </p>
+        <a class="play" href="#ajouter">
+          ℹ️ COMMENT AJOUTER UN JEU
+        </a>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="tips" id="conseils">
+    <h2>🏆 قواعد اللعب ديالنا</h2>
+    <ul>
+      <li>لعب بشوية وخذ وقتك.</li>
+      <li>حاول تحطم الرقم القياسي ديالك.</li>
+      <li>استمتع باللعب وبالأخلاق الحميدة.</li>
+      <li>كل لعبة جديدة تقدر تزيدها للمكتبة ديالك.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <strong>EL-ARABI GAME LIBRARY 🇲🇦</strong><br>
+  Made with ❤️ and 🎮<br>
+  <a class="nav-link" href="ROU7.HTML">⬅️ click pour terja3</a>
+</footer>
+
+</body>
+</html>

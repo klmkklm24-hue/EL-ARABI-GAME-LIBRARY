@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARABI DRIFT: CASA</title>
+
+<style>
+:root {
+  --bg: #080817;
+  --panel: #15142d;
+  --cyan: #61f4ff;
+  --purple: #9a5bff;
+  --pink: #ff4eae;
+  --gold: #ffe680;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(
+    ellipse at top,
+    #25205b 0,
+    #0b0a1d 48%,
+    #05050d 100%
+  );
+  color: #f7f4ff;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  min-height: 100vh;
+}
+
+header {
+  padding: 20px 12px 8px;
+}
+
+h1 {
+  font-size: clamp(30px, 7vw, 52px);
+  margin: 0;
+  color: var(--cyan);
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px #31cfff, 0 0 30px #8d45ff;
+}
+
+header p {
+  color: #d7d0ff;
+  line-height: 1.7;
+  margin: 10px auto;
+  max-width: 700px;
+}
+
+nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 10px;
+}
+
+button, .back {
+  font: 700 14px Arial, sans-serif;
+  border: 1px solid #6f63bd;
+  background: #211d45;
+  color: white;
+  border-radius: 12px;
+  padding: 11px 15px;
+  cursor: pointer;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+button:hover, .back:hover {
+  filter: brightness(1.2);
+}
+
+.back {
+  background: var(--gold);
+  color: #17122d;
+  border: 0;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px auto 12px;
+  width: 96%;
+}
+
+.stat {
+  min-width: 95px;
+  padding: 9px 13px;
+  border: 1px solid #8474d655;
+  border-radius: 12px;
+  background: #ffffff0b;
+  color: #dcd8ff;
+}
+
+.stat strong {
+  display: block;
+  color: var(--cyan);
+  font-size: 20px;
+  margin-top: 4px;
+}
+
+.game-wrap {
+  position: relative;
+  width: min(96vw, 850px);
+  margin: 0 auto;
+  border: 2px solid #795cff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 28px #7d48ff55;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #090a18;
+}
+
+#overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 18px;
+  background: #080817e8;
+}
+
+#overlay h2 {
+  font-size: clamp(25px, 6vw, 42px);
+  color: var(--gold);
+  margin: 0;
+  text-shadow: 0 0 16px #a64dff;
+}
+
+#overlay p {
+  line-height: 1.85;
+  color: #e1dcff;
+  margin: 0;
+  max-width: 520px;
+}
+
+#startBtn {
+  background: linear-gradient(100deg, #704cff, #dc3aff);
+  font-size: 18px;
+  padding: 14px 26px;
+  border: 0;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 13px auto;
+}
+
+.controls button {
+  width: 78px;
+  height: 58px;
+  font-size: 24px;
+  touch-action: none;
+  user-select: none;
+}
+
+#driftBtn {
+  width: 100px;
+  background: linear-gradient(120deg, #4b35bd, #a92fba);
+}
+
+#status {
+  min-height: 26px;
+  color: var(--cyan);
+  font-weight: bold;
+  padding: 4px 10px;
+}
+
+.hint {
+  color: #bdb8e2;
+  line-height: 1.8;
+  font-size: 14px;
+  padding: 0 15px 24px;
+}
+
+@media (max-width: 480px) {
+  header {
+    padding-top: 16px;
+  }
+
+  .stat {
+    min-width: 78px;
+    padding: 8px;
+  }
+
+  .controls button {
+    width: 70px;
+    height: 56px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>ARABI DRIFT: CASA 🌃</h1>
+  <p>
+    ليلة كازا شاعلة بالنيون! 🏎️💜<br>
+    سوق، تفادى الطوموبيلات، دير Drift وجمع النقط باش تطلع فالمستويات.
+  </p>
+</header>
+
+<nav>
+  <a class="back" href="page2.html">⬅CLICK POUR TERJA3 LPAGE 2</a>
+
+  <button id="musicBtn">🎼 شعل الموسيقى</button>
+  <button id="sfxBtn">🔊 الصوت: شاعل</button>
+</nav>
+
+<div class="stats">
+  <div class="stat">
+    النقط
+    <strong id="score">0</strong>
+  </div>
+
+  <div class="stat">
+    المستوى
+    <strong id="level">1</strong>
+  </div>
+
+  <div class="stat">
+    العملات 🪙
+    <strong id="coins">0</strong>
+  </div>
+
+  <div class="stat">
+    الرقم القياسي
+    <strong id="best">0</strong>
+  </div>
+</div>
+
+<div class="game-wrap">
+  <canvas
+    id="game"
+    width="800"
+    height="560"
+    aria-label="لعبة سباق سيارات"
+  ></canvas>
+
+  <div id="overlay">
+    <h2>ARABI DRIFT: CASA</h2>
+
+    <p>
+      🌃 مرحبا بيك فكازا ديال المستقبل!<br>
+      ⬅️ ➡️ بدّل المسار، وSpace أو زر DRIFT للانجراف.<br>
+      🪙 جمع العملات وتفادى السيارات. كلما زادت النقط، زادت السرعة!
+    </p>
+
+    <button id="startBtn">يلاه نبداو السباق! 🚦</button>
+  </div>
+</div>
+
+<div id="status">
+  واجد آ بطل؟ ضغط على «يلاه نبداو السباق!»
+</div>
+
+<div class="controls">
+  <button id="leftBtn" aria-label="لليسار">⬅️</button>
+  <button id="driftBtn">💨 DRIFT</button>
+  <button id="rightBtn" aria-label="لليمين">➡️</button>
+</div>
+
+<div class="hint">
+  فالـ PC: استعمل الأسهم أو A و D، وSpace للـ Drift.<br>
+  فـ Android: استعمل الأزرار اللي تحت اللعبة.<br>
+  الموسيقى والصوت كيحتاجو ضغطة من اللاعب باش يبداو.
+</div>
+
+<script>
+(() => {
+"use strict";
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const W = canvas.width;
+const H = canvas.height;
+
+const $ = id => document.getElementById(id);
+const lanes = [275, 400, 525];
+
+let running = false;
+let score = 0;
+let coins = 0;
+let level = 1;
+let best = 0;
+let frame = 0;
+let speed = 4;
+let roadOffset = 0;
+
+let lane = 1;
+let carX = lanes[1];
+let carVX = 0;
+let drifting = false;
+let lastTime = 0;
+
+let traffic = [];
+let money = [];
+let particles = [];
+
+let sfxOn = true;
+let musicOn = false;
+let audio = null;
+let musicNodes = [];
+let musicTimer = null;
+
+const keys = {
+  left: false,
+  right: false,
+  drift: false
+};
+
+try {
+  best = Number(localStorage.getItem("neonDriftCasaBest")) || 0;
+} catch (e) {}
+
+$("best").textContent = best;
+
+function initAudio() {
+  if (!audio) {
+    audio = new (
+      window.AudioContext || window.webkitAudioContext
+    )();
+  }
+
+  if (audio.state === "suspended") {
+    audio.resume();
+  }
+}
+
+function tone(freq = 440, duration = 0.12, type = "sine", volume = 0.05) {
+  if (!sfxOn) return;
+
+  try {
+    initAudio();
+
+    const o = audio.createOscillator();
+    const g = audio.createGain();
+
+    o.type = type;
+    o.frequency.value = freq;
+
+    g.gain.setValueAtTime(volume, audio.currentTime);
+    g.gain.exponentialRampToValueAtTime(
+      0.001,
+      audio.currentTime + duration
+    );
+
+    o.connect(g);
+    g.connect(audio.destination);
+
+    o.start();
+    o.stop(audio.currentTime + duration);
+  } catch (e) {}
+}
+
+function stopMusic() {
+  musicOn = false;
+
+  if (musicTimer) {
+    clearInterval(musicTimer);
+  }
+
+  musicTimer = null;
+
+  musicNodes.forEach(n => {
+    try {
+      n.stop();
+    } catch (e) {}
+  });
+
+  musicNodes = [];
+  $("musicBtn").textContent = "🎼 شعل الموسيقى";
+}
+
+function startMusic() {
+  try {
+    initAudio();
+    stopMusic();
+
+    musicOn = true;
+    $("musicBtn").textContent = "🎼 طفي الموسيقى";
+
+    // موسيقى إلكترونية مولدة داخل اللعبة.
+    const melody = [
+      110, 146.83, 174.61, 220,
+      174.61, 146.83, 98, 130.81,
+      164.81, 196, 164.81, 130.81
+    ];
+
+    const bass = [
+      55, 55, 65.41, 65.41,
+      49, 49, 58.27, 58.27
+    ];
+
+    let i = 0;
+
+    musicTimer = setInterval(() => {
+      if (!musicOn || !audio) return;
+
+      const t = audio.currentTime;
+
+      function note(f, dur, wave, gainValue) {
+        const o = audio.createOscillator();
+        const g = audio.createGain();
+        const filter = audio.createBiquadFilter();
+
+        o.type = wave;
+        o.frequency.setValueAtTime(f, t);
+
+        filter.type = "lowpass";
+        filter.frequency.value = wave === "sawtooth" ? 700 : 1800;
+
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(gainValue, t + 0.035);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+        o.connect(filter);
+        filter.connect(g);
+        g.connect(audio.destination);
+
+        o.start(t);
+        o.stop(t + dur + 0.02);
+      }
+
+      note(melody[i % melody.length], 0.34, "triangle", 0.045);
+
+      if (i % 2 === 0) {
+        note(bass[Math.floor(i / 2) % bass.length], 0.55, "sawtooth", 0.025);
+      }
+
+      if (i % 4 === 0) {
+        note(melody[i % melody.length] * 2, 0.18, "sine", 0.018);
+      }
+
+      i++;
+    }, 240);
+
+  } catch (e) {
+    $("status").textContent = "الموسيقى ما خداماش فهاد المتصفح.";
+  }
+}
+
+$("musicBtn").addEventListener("click", () => {
+  if (musicOn) {
+    stopMusic();
+  } else {
+    startMusic();
+  }
+});
+
+$("sfxBtn").addEventListener("click", () => {
+  sfxOn = !sfxOn;
+
+  $("sfxBtn").textContent = sfxOn
+    ? "🔊 الصوت: شاعل"
+    : "🔇 الصوت: طافي";
+
+  if (sfxOn) tone(650, 0.1);
+});
+
+function rounded(x, y, w, h, r, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, r);
+  ctx.fill();
+}
+
+function drawCar(x, y, color, angle = 0, player = false) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+
+  ctx.fillStyle = "#0008";
+  ctx.fillRect(-25, -27, 52, 65);
+
+  ctx.fillStyle = "#090912";
+  ctx.fillRect(-25, -21, 8, 17);
+  ctx.fillRect(17, -21, 8, 17);
+  ctx.fillRect(-25, 13, 8, 17);
+  ctx.fillRect(17, 13, 8, 17);
+
+  rounded(-20, -32, 40, 65, 9, color);
+  rounded(-15, -23, 30, 18, 5, "#9cecff");
+  rounded(-14, 2, 28, 14, 4, "#26314c");
+
+  ctx.fillStyle = "#fff8b7";
+  ctx.fillRect(-16, -32, 9, 4);
+  ctx.fillRect(7, -32, 9, 4);
+
+  ctx.fillStyle = "#ff3d88";
+  ctx.fillRect(-16, 28, 9, 4);
+  ctx.fillRect(7, 28, 9, 4);
+
+  if (player) {
+    ctx.strokeStyle = "#62f5ff";
+    ctx.lineWidth = 2;
+    ctx.shadowColor = "#62f5ff";
+    ctx.shadowBlur = 18;
+    ctx.strokeRect(-21, -34, 42, 69);
+  }
+
+  ctx.restore();
+}
+
+function drawRoad() {
+  const grad = ctx.createLinearGradient(0, 0, W, H);
+
+  grad.addColorStop(0, "#11132e");
+  grad.addColorStop(1, "#24133b");
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // أضواء مدينة كازا فالليل.
+  for (let i = 0; i < 18; i++) {
+    const x = i * 48 + ((i % 2) * 8);
+    const bh = 70 + (i * 37 % 110);
+
+    ctx.fillStyle = i % 2 ? "#211747" : "#102b46";
+    ctx.fillRect(x, 0, 36, bh);
+
+    ctx.fillStyle = i % 2 ? "#8b4dff" : "#38dff5";
+
+    for (let wy = 12; wy < bh - 8; wy += 20) {
+      for (let wx = 7; wx < 30; wx += 13) {
+        ctx.fillRect(x + wx, wy, 4, 6);
+      }
+    }
+  }
+
+  ctx.fillStyle = "#303047";
+  ctx.fillRect(170, 0, 460, H);
+
+  ctx.fillStyle = "#a052ff";
+  ctx.shadowColor = "#a052ff";
+  ctx.shadowBlur = 12;
+
+  ctx.fillRect(168, 0, 3, H);
+  ctx.fillRect(629, 0, 3, H);
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#e7e3ff";
+
+  for (let y = -55 + (roadOffset % 86); y < H; y += 86) {
+    ctx.fillRect(316, y, 5, 40);
+    ctx.fillRect(479, y, 5, 40);
+  }
+
+  for (let y = -20 + (roadOffset % 58); y < H; y += 58) {
+    ctx.fillStyle = "#45eaff";
+    ctx.fillRect(174, y, 4, 22);
+
+    ctx.fillStyle = "#ff50c7";
+    ctx.fillRect(622, y, 4, 22);
+  }
+}
+
+function spawnTraffic() {
+  const laneIndex = Math.floor(Math.random() * 3);
+
+  const colors = [
+    "#ff4f82",
+    "#ffb84d",
+    "#8c6aff",
+    "#42e6d4",
+    "#e6eaff"
+  ];
+
+  traffic.push({
+    lane: laneIndex,
+    y: -60,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    hit: false
+  });
+}
+
+function spawnCoin() {
+  money.push({
+    lane: Math.floor(Math.random() * 3),
+    y: -20,
+    spin: 0
+  });
+}
+
+function burst(x, y, color) {
+  for (let i = 0; i < 13; i++) {
+    particles.push({
+      x,
+      y,
+      vx: (Math.random() - 0.5) * 7,
+      vy: (Math.random() - 0.5) * 7,
+      life: 24,
+      color
+    });
+  }
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.globalAlpha = Math.max(0, p.life / 24);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, 5, 5);
+
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+  });
+
+  ctx.globalAlpha = 1;
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawCoin(m) {
+  ctx.save();
+
+  ctx.translate(lanes[m.lane], m.y);
+  ctx.scale(0.5 + Math.abs(Math.cos(m.spin)) * 0.5, 1);
+
+  ctx.fillStyle = "#ffe680";
+  ctx.shadowColor = "#ffe680";
+  ctx.shadowBlur = 14;
+
+  ctx.beginPath();
+  ctx.arc(0, 0, 12, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#302052";
+  ctx.font = "bold 14px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("C", 0, 5);
+
+  ctx.restore();
+}
+
+function draw() {
+  drawRoad();
+
+  traffic.forEach(t => {
+    drawCar(lanes[t.lane], t.y, t.color);
+  });
+
+  money.forEach(drawCoin);
+
+  if (drifting && frame % 2 === 0) {
+    burst(
+      carX + Math.random() * 18 - 9,
+      445,
+      "#b08aff"
+    );
+  }
+
+  drawCar(
+    carX,
+    420,
+    "#08e2d3",
+    drifting ? (keys.left ? -0.18 : keys.right ? 0.18 : 0) : 0,
+    true
+  );
+
+  drawParticles();
+
+  ctx.fillStyle = "#e5e0ff";
+  ctx.font = "bold 17px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText("CASA • NIGHT DRIVE", 18, 28);
+
+  ctx.fillStyle = "#63f5ff";
+  ctx.fillText("LEVEL " + level, 18, 51);
+}
+
+function updateUI() {
+  $("score").textContent = score;
+  $("coins").textContent = coins;
+  $("level").textContent = level;
+  $("best").textContent = best;
+}
+
+function move(dir) {
+  if (!running) return;
+
+  lane = Math.max(0, Math.min(2, lane + dir));
+  tone(300 + lane * 100, 0.06, "square", 0.025);
+}
+
+function setHold(id, key) {
+  const b = $(id);
+
+  b.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
+
+  ["pointerup", "pointerleave", "pointercancel"].forEach(ev => {
+    b.addEventListener(ev, () => {
+      keys[key] = false;
+    });
+  });
+}
+
+setHold("leftBtn", "left");
+setHold("rightBtn", "right");
+setHold("driftBtn", "drift");
+
+document.addEventListener("keydown", e => {
+  if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+    e.preventDefault();
+  }
+
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+    keys.left = true;
+  }
+
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+    keys.right = true;
+  }
+
+  if (e.code === "Space") {
+    keys.drift = true;
+  }
+
+  if (!running && e.key === "Enter") {
+    startGame();
+  }
+});
+
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+    keys.left = false;
+  }
+
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+    keys.right = false;
+  }
+
+  if (e.code === "Space") {
+    keys.drift = false;
+  }
+});
+
+function startGame() {
+  initAudio();
+
+  score = 0;
+  coins = 0;
+  level = 1;
+  frame = 0;
+  speed = 4;
+  roadOffset = 0;
+
+  lane = 1;
+  carX = lanes[1];
+  carVX = 0;
+
+  traffic = [];
+  money = [];
+  particles = [];
+
+  running = true;
+  lastTime = 0;
+
+  keys.left = false;
+  keys.right = false;
+  keys.drift = false;
+
+  $("overlay").style.display = "none";
+  $("status").textContent = "يلاه! الطريق ديالك آ بطل! 🌃";
+
+  tone(440, 0.15);
+  updateUI();
+
+  requestAnimationFrame(loop);
+}
+
+function endGame() {
+  running = false;
+
+  try {
+    if (score > best) {
+      best = score;
+      localStorage.setItem("neonDriftCasaBest", String(best));
+    }
+  } catch (e) {}
+
+  updateUI();
+  tone(130, 0.35, "sawtooth", 0.06);
+
+  $("overlay").innerHTML = `
+    <h2>GAME OVER 🏁</h2>
+    <p>
+      النقط ديالك: <b>${score}</b><br>
+      العملات: <b>${coins}</b> 🪙<br>
+      وصلتي للمستوى: <b>${level}</b><br>
+      الرقم القياسي: <b>${best}</b><br>
+      ماشي مشكل! عاود وحاول تحطم الرقم القياسي.
+    </p>
+    <button id="restartBtn"
+      style="background:linear-gradient(100deg,#704cff,#dc3aff);font-size:18px">
+      عاود اللعب 🔁
+    </button>
+    <a class="back" href="page2.html">
+      ⬅️ رجع لمكتبة الألعاب
+    </a>
+  `;
+
+  $("overlay").style.display = "flex";
+
+  $("restartBtn").addEventListener("click", startGame);
+  $("status").textContent = "سالات الجولة! واش نعاودو؟";
+}
+
+function loop(timestamp) {
+  if (!running) return;
+
+  if (!lastTime) lastTime = timestamp;
+
+  const dt = Math.min((timestamp - lastTime) / 16.67, 2);
+  lastTime = timestamp;
+
+  frame++;
+  roadOffset += speed * dt;
+
+  if (keys.left) {
+    lane = Math.max(0, lane - 0.07 * dt);
+  }
+
+  if (keys.right) {
+    lane = Math.min(2, lane + 0.07 * dt);
+  }
+
+  const target = lanes[Math.round(lane)];
+
+  carX += (target - carX) * Math.min(1, 0.23 * dt);
+
+  drifting = keys.drift && (
+    keys.left ||
+    keys.right ||
+    Math.abs(carX - lanes[Math.round(lane)]) > 4
+  );
+
+  if (drifting) {
+    score += Math.ceil(2 * dt);
+
+    if (frame % 16 === 0) {
+      tone(100, 0.05, "triangle", 0.012);
+    }
+  }
+
+  speed = Math.min(8, 4 + Math.floor(score / 250) * 0.35);
+
+  const newLevel = 1 + Math.floor(score / 250);
+
+  if (newLevel > level) {
+    level = newLevel;
+    $("status").textContent = "🔥 المستوى " + level + "! السرعة تزادت!";
+    tone(720, 0.2);
+  }
+
+  if (frame % Math.max(28, Math.floor(68 - speed * 3)) === 0) {
+    spawnTraffic();
+  }
+
+  if (frame % 110 === 0) {
+    spawnCoin();
+  }
+
+  if (frame % 10 === 0) {
+    score++;
+  }
+
+  traffic.forEach(t => {
+    t.y += (speed + 1) * dt;
+
+    if (
+      !t.hit &&
+      t.lane === Math.round(lane) &&
+      Math.abs(t.y - 420) < 48
+    ) {
+      t.hit = true;
+      burst(carX, 420, "#ff4d8d");
+      endGame();
+    }
+  });
+
+  if (!running) return;
+
+  money.forEach(m => {
+    m.y += speed * dt;
+    m.spin += 0.14 * dt;
+
+    if (
+      m.lane === Math.round(lane) &&
+      Math.abs(m.y - 420) < 28
+    ) {
+      m.y = H + 100;
+      coins++;
+      score += 25;
+
+      tone(880, 0.1, "sine", 0.05);
+      $("status").textContent = "🪙 برافو! جمعتي عملة!";
+    }
+  });
+
+  traffic = traffic.filter(t => t.y < H + 80);
+  money = money.filter(m => m.y < H + 50);
+
+  draw();
+  updateUI();
+
+  requestAnimationFrame(loop);
+}
+
+$("startBtn").addEventListener("click", startGame);
+
+draw();
+
+})();
+</script>
+
+</body>
+</html>

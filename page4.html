@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARABI DRIVER king</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #10152c, #25104b, #071d2b);
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+header { padding: 16px 8px 6px; }
+
+h1 {
+  margin: 0;
+  font-size: clamp(30px, 7vw, 48px);
+  color: #ffe44d;
+  text-shadow: 0 0 14px #ff6b00;
+}
+
+.subtitle { color: #b8f8ff; margin: 8px; }
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+a, button {
+  border: 0;
+  border-radius: 12px;
+  padding: 11px 15px;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+nav a {
+  color: #10152c;
+  background: #ffe44d;
+}
+
+button {
+  color: white;
+  background: #6c39e8;
+}
+
+#soundBtn { background: #008e91; }
+
+.game-wrap {
+  width: min(96vw, 900px);
+  margin: 8px auto;
+  position: relative;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 3px solid #ffe44d;
+  border-radius: 16px;
+  background: #20252b;
+  box-shadow: 0 0 24px #713bff77;
+}
+
+#message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 13px;
+  background: #090d1dcc;
+}
+
+#message h2 {
+  margin: 0;
+  color: #ffe44d;
+  font-size: clamp(27px, 6vw, 42px);
+}
+
+#message p { line-height: 1.7; margin: 0; }
+
+#startBtn {
+  background: #ff3d71;
+  font-size: 19px;
+  padding: 14px 25px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px auto;
+  width: min(96vw, 900px);
+}
+
+.stat {
+  background: #ffffff16;
+  border: 1px solid #ffffff30;
+  border-radius: 12px;
+  padding: 10px 14px;
+  min-width: 105px;
+}
+
+.stat strong { color: #ffe44d; }
+
+#status {
+  color: #b8f8ff;
+  min-height: 25px;
+  padding: 4px 10px;
+  font-weight: bold;
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 12px;
+}
+
+.controls button {
+  width: 75px;
+  height: 58px;
+  font-size: 26px;
+  background: #ff3d71;
+  touch-action: none;
+}
+
+.help {
+  color: #d6d8ff;
+  padding: 8px 16px 22px;
+  line-height: 1.8;
+}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>🚗 ARABI DRIVER KING</h1>
+  <p class="subtitle">يلاه آ خويا، واش واجد للسياقة؟ 😎</p>
+</header>
+
+<nav>
+  <a href="page2.html">⬅️CLICK POUR TERJA3 LIBRARY</a>
+  <button id="soundBtn">🔊 الصوت: شاعل</button>
+</nav>
+
+<div class="stats">
+  <div class="stat">النقط: <strong id="score">0</strong></div>
+  <div class="stat">الفلوس: <strong id="coins">0</strong> 🪙</div>
+  <div class="stat">الصدمات: <strong id="crashes">0</strong>/3</div>
+  <div class="stat">البوليس: <strong id="wanted">⭐</strong></div>
+</div>
+
+<div class="game-wrap">
+  <canvas id="game" width="800" height="600"></canvas>
+
+  <div id="message">
+    <h2>ARABI DRIVER 🇲🇦</h2>
+    <p>
+      🚘 تفادى الطوموبيلات وجمع الفلوس!<br>
+      🚔 رد بالك، البوليس وراك!<br>
+      🗣️ يلاه آ بطل، ورّينا المهارة ديالك!
+    </p>
+    <button id="startBtn">يلاه نبداو! ▶</button>
+  </div>
+</div>
+
+<div id="status">🚦 واجد؟ ضغط على «يلاه نبداو!»</div>
+
+<div class="controls">
+  <button id="leftBtn" aria-label="السير لليسار">⬅️</button>
+  <button id="rightBtn" aria-label="السير لليمين">➡️</button>
+</div>
+
+<div class="help">
+  <strong>طريقة اللعب:</strong><br>
+  فالـ PC: استعمل ⬅️ و ➡️ أو A و D.<br>
+  فالتلفون: ضغط على أزرار اليمين واليسار.<br>
+  جمع 🪙، تفادى السيارات، وحاول ما تخليش البوليس يشدّك!
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const scoreEl = document.getElementById("score");
+const coinsEl = document.getElementById("coins");
+const crashesEl = document.getElementById("crashes");
+const wantedEl = document.getElementById("wanted");
+const statusEl = document.getElementById("status");
+const message = document.getElementById("message");
+const startBtn = document.getElementById("startBtn");
+const soundBtn = document.getElementById("soundBtn");
+
+const W = canvas.width;
+const H = canvas.height;
+const lanes = [290, 400, 510];
+
+let running = false;
+let soundOn = true;
+let audioCtx = null;
+let score = 0;
+let coins = 0;
+let crashes = 0;
+let wanted = 1;
+let lane = 1;
+let roadOffset = 0;
+let frame = 0;
+let speed = 4;
+let obstacles = [];
+let money = [];
+let particles = [];
+let policeFlash = 0;
+let lastTime = 0;
+let best = 0;
+
+try {
+  best = Number(localStorage.getItem("arabiDriverBest")) || 0;
+} catch (e) {}
+
+function sound(freq = 440, duration = 0.12, type = "sine", volume = 0.06) {
+  if (!soundOn) return;
+
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+
+    if (audioCtx.state === "suspended") audioCtx.resume();
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = type;
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(
+      0.001, audioCtx.currentTime + duration
+    );
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch (e) {}
+}
+
+soundBtn.addEventListener("click", () => {
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊 الصوت: شاعل" : "🔇 الصوت: طافي";
+  if (soundOn) sound(650, 0.1);
+});
+
+function car(x, y, color, police = false, scale = 1) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.scale(scale, scale);
+
+  // shadow
+  ctx.fillStyle = "#00000066";
+  ctx.fillRect(-27, -36, 60, 88);
+
+  // wheels
+  ctx.fillStyle = "#101014";
+  ctx.fillRect(-29, -28, 9, 22);
+  ctx.fillRect(20, -28, 9, 22);
+  ctx.fillRect(-29, 18, 9, 22);
+  ctx.fillRect(20, 18, 9, 22);
+
+  // body
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(-25, -39, 50, 80, 11);
+  ctx.fill();
+
+  // windows
+  ctx.fillStyle = "#9ceaff";
+  ctx.beginPath();
+  ctx.roundRect(-18, -24, 36, 22, 5);
+  ctx.fill();
+
+  ctx.fillStyle = "#26384b";
+  ctx.fillRect(-18, 5, 36, 15);
+
+  // lights
+  ctx.fillStyle = "#fff8bf";
+  ctx.fillRect(-20, -38, 12, 5);
+  ctx.fillRect(8, -38, 12, 5);
+
+  ctx.fillStyle = "#ff314f";
+  ctx.fillRect(-20, 32, 12, 5);
+  ctx.fillRect(8, 32, 12, 5);
+
+  if (police) {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(-20, -4, 40, 5);
+
+    ctx.fillStyle = policeFlash % 2 ? "#ff244d" : "#278aff";
+    ctx.fillRect(-17, -13, 16, 8);
+
+    ctx.fillStyle = policeFlash % 2 ? "#278aff" : "#ff244d";
+    ctx.fillRect(1, -13, 16, 8);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 10px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("POLICE", 0, 14);
+  }
+
+  ctx.restore();
+}
+
+function drawRoad() {
+  // roadside
+  ctx.fillStyle = "#267642";
+  ctx.fillRect(0, 0, W, H);
+
+  // sidewalk
+  ctx.fillStyle = "#a6a6a6";
+  ctx.fillRect(175, 0, 450, H);
+
+  // road
+  ctx.fillStyle = "#30343b";
+  ctx.fillRect(190, 0, 420, H);
+
+  // roadside markings
+  for (let y = -30 + roadOffset % 60; y < H; y += 60) {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(184, y, 7, 30);
+    ctx.fillRect(609, y, 7, 30);
+  }
+
+  // lane markings
+  ctx.fillStyle = "#f7f0c0";
+  for (let y = -70 + roadOffset % 90; y < H; y += 90) {
+    ctx.fillRect(343, y, 5, 42);
+    ctx.fillRect(453, y, 5, 42);
+  }
+
+  // colorful Moroccan street decorations
+  for (let y = -20 + roadOffset % 130; y < H; y += 130) {
+    ctx.fillStyle = "#ffcf33";
+    ctx.fillRect(95, y, 58, 13);
+    ctx.fillStyle = "#f04f63";
+    ctx.fillRect(645, y + 30, 48, 13);
+  }
+
+  // road signs
+  ctx.fillStyle = "#ffe44d";
+  ctx.beginPath();
+  ctx.arc(115, 80 + (roadOffset % 180), 18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#1c2541";
+  ctx.font = "bold 18px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("!", 115, 86 + (roadOffset % 180));
+}
+
+function spawnObstacle() {
+  const laneIndex = Math.floor(Math.random() * 3);
+  const colors = ["#ff4b5c", "#35c9d0", "#ffb52e", "#a76cff", "#eeeeee"];
+
+  obstacles.push({
+    lane: laneIndex,
+    y: -70,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    speed: speed * (0.8 + Math.random() * 0.5),
+    passed: false
+  });
+}
+
+function spawnCoin() {
+  money.push({
+    lane: Math.floor(Math.random() * 3),
+    y: -30,
+    spin: Math.random() * 6
+  });
+}
+
+function drawCoin(x, y, spin) {
+  ctx.save();
+  ctx.translate(x, y);
+  const width = 12 + Math.abs(Math.sin(spin)) * 7;
+  ctx.fillStyle = "#ffdf35";
+  ctx.beginPath();
+  ctx.ellipse(0, 0, width, 14, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#fff6a1";
+  ctx.lineWidth = 3;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function addParticles(x, y, color) {
+  for (let i = 0; i < 12; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      life: 24,
+      color
+    });
+  }
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.globalAlpha = Math.max(0, p.life / 24);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, 6, 6);
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+  });
+  ctx.globalAlpha = 1;
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawScene() {
+  drawRoad();
+
+  // traffic
+  obstacles.forEach(o => car(lanes[o.lane], o.y, o.color));
+
+  // coins
+  money.forEach(m => drawCoin(lanes[m.lane], m.y, m.spin));
+
+  // police car follows behind the player
+  const policeY = 535 - Math.min(wanted * 7, 42);
+  car(lanes[lane], policeY, "#f2f4ff", true, 0.75);
+
+  // player car
+  car(lanes[lane], 435, "#00e5a8");
+
+  // dashboard message
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "bold 19px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText("ARABI DRIVER", 18, 32);
+
+  ctx.fillStyle = "#ffe44d";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText("BEST: " + best, 18, 57);
+
+  drawParticles();
+}
+
+function updateStats() {
+  scoreEl.textContent = score;
+  coinsEl.textContent = coins;
+  crashesEl.textContent = crashes;
+  wantedEl.textContent = "⭐".repeat(Math.min(5, wanted));
+}
+
+function move(dir) {
+  if (!running) return;
+  const oldLane = lane;
+  lane = Math.max(0, Math.min(2, lane + dir));
+  if (oldLane !== lane) sound(300 + lane * 100, 0.07, "square", 0.025);
+}
+
+document.addEventListener("keydown", e => {
+  if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) e.preventDefault();
+
+  if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") move(-1);
+  if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") move(1);
+
+  if ((e.key === " " || e.key === "Enter") && !running) startGame();
+});
+
+document.getElementById("leftBtn").addEventListener("pointerdown", e => {
+  e.preventDefault();
+  move(-1);
+});
+
+document.getElementById("rightBtn").addEventListener("pointerdown", e => {
+  e.preventDefault();
+  move(1);
+});
+
+function startGame() {
+  // Audio is initialized after a user gesture.
+  if (soundOn) sound(600, 0.15);
+
+  score = 0;
+  coins = 0;
+  crashes = 0;
+  wanted = 1;
+  lane = 1;
+  speed = 4;
+  frame = 0;
+  roadOffset = 0;
+  obstacles = [];
+  money = [];
+  particles = [];
+  running = true;
+  lastTime = 0;
+  message.style.display = "none";
+  statusEl.textContent = "يلاه! 🚗 البوليس بدا كيتبعك!";
+  updateStats();
+  requestAnimationFrame(loop);
+}
+
+function endGame() {
+  running = false;
+
+  try {
+    if (score > best) {
+      best = score;
+      localStorage.setItem("arabiDriverBest", String(best));
+    }
+  } catch (e) {}
+
+  message.style.display = "flex";
+  message.innerHTML = `
+    <h2>سالات الجولة! 🏁</h2>
+    <p>
+      النقط ديالك: <strong>${score}</strong><br>
+      الفلوس اللي جمعتي: <strong>${coins}</strong> 🪙<br>
+      أحسن نتيجة: <strong>${best}</strong><br>
+      ${crashes >= 3 ? "رد بالك المرة الجاية! البوليس شدّك 🚔" : "برافو عليك آ بطل!"}
+    </p>
+    <button id="startBtn">عاود اللعب 🔁</button>
+  `;
+
+  document.getElementById("startBtn").addEventListener("click", startGame);
+  statusEl.textContent = "🏁 بغيتي تحاول من جديد؟";
+  sound(180, 0.35, "sawtooth", 0.045);
+  updateStats();
+}
+
+function loop(timestamp) {
+  if (!running) return;
+
+  if (!lastTime) lastTime = timestamp;
+  const delta = Math.min((timestamp - lastTime) / 16.67, 2);
+  lastTime = timestamp;
+
+  frame++;
+  roadOffset += speed * delta;
+  policeFlash = Math.floor(frame / 10) % 2;
+
+  // Gradually increase difficulty.
+  speed = Math.min(9, 4 + score / 500);
+  if (frame % 9 === 0) score += 1;
+
+  if (frame % Math.max(24, Math.floor(65 - speed * 3)) === 0) {
+    spawnObstacle();
+  }
+
+  if (frame % 100 === 0) spawnCoin();
+
+  if (frame % 550 === 0) {
+    wanted = Math.min(5, wanted + 1);
+    statusEl.textContent = "🚔 البوليس وراك! زيد رد بالك!";
+    sound(780, 0.22, "square", 0.04);
+  }
+
+  obstacles.forEach(o => {
+    o.y += (speed + o.speed * 0.25) * delta;
+
+    if (!o.passed && o.y > 435) {
+      o.passed = true;
+
+      if (o.lane === lane && Math.abs(o.y - 435) < 55) {
+        crashes++;
+        addParticles(lanes[lane], 435, "#ff553d");
+        sound(100, 0.28, "sawtooth", 0.09);
+        statusEl.textContent = "💥 آييه! تصادم! رد بالك!";
+        wanted = Math.min(5, wanted + 1);
+
+        if (crashes >= 3) {
+          endGame();
+          return;
+        }
+      } else if (o.lane !== lane) {
+        score += 10;
+        statusEl.textContent = "زوين! تفاديتي الطوموبيل! 😎";
+      }
+    }
+  });
+
+  money.forEach(m => {
+    m.y += speed * delta;
+    m.spin += 0.13 * delta;
+
+    if (m.lane === lane && Math.abs(m.y - 435) < 30) {
+      m.y = H + 100;
+      coins++;
+      score += 25;
+      sound(880, 0.09, "sine", 0.06);
+      statusEl.textContent = "🪙 برافو! جمعتي الفلوس!";
+    }
+  });
+
+  obstacles = obstacles.filter(o => o.y < H + 90);
+  money = money.filter(m => m.y < H + 50);
+
+  // Draw after all updates.
+  drawScene();
+  updateStats();
+
+  requestAnimationFrame(loop);
+}
+
+// Draw the road before the first game.
+drawScene();
+</script>
+</body>
+</html>

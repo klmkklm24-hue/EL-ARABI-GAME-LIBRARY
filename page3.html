@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARABI S'ECHAPPE DE LA POLICE</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: #101629;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+header { padding: 10px; }
+
+h1 {
+    color: #ffd447;
+    margin: 8px;
+    text-shadow: 0 0 12px #ffad24;
+}
+
+.stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 10px;
+    font-weight: bold;
+}
+
+.stat {
+    background: #25314b;
+    border-radius: 10px;
+    padding: 9px 13px;
+}
+
+canvas {
+    display: block;
+    width: min(94vw, 420px);
+    height: auto;
+    margin: auto;
+    border: 3px solid #ffd447;
+    border-radius: 14px;
+    background: #192c45;
+    touch-action: none;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 13px;
+}
+
+button {
+    border: none;
+    border-radius: 12px;
+    padding: 13px 18px;
+    font-size: 17px;
+    font-weight: bold;
+    background: #ffd447;
+    color: #192033;
+    cursor: pointer;
+}
+
+button:active { transform: scale(.94); }
+
+#soundBtn {
+    background: #8bdcff;
+    margin: 4px;
+}
+
+#message {
+    min-height: 24px;
+    color: #ffd447;
+    font-weight: bold;
+    margin: 8px;
+}
+
+a {
+    color: #8bdcff;
+    display: inline-block;
+    margin: 16px;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(5, 10, 25, .88);
+}
+
+.panel {
+    width: min(100%, 360px);
+    padding: 28px 20px;
+    background: #202d49;
+    border: 2px solid #ffd447;
+    border-radius: 22px;
+    box-shadow: 0 0 35px #263c67;
+}
+
+.panel h2 {
+    color: #ffd447;
+    font-size: 30px;
+}
+
+.panel p { line-height: 1.6; }
+
+.panel button {
+    width: 100%;
+    margin-top: 10px;
+    background: #ffd447;
+}
+
+.hidden { display: none !important; }
+
+.small {
+    font-size: 12px;
+    color: #b9c9e6;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🏃ARABI S'ECHAPPE PRO</h1>
+
+    <div class="stats">
+        <div class="stat" id="score">Score: 0</div>
+        <div class="stat" id="coins">🪙 Pièces: 0</div>
+        <div class="stat" id="best">🏆 Record: 0</div>
+    </div>
+</header>
+
+<canvas id="game" width="420" height="600"></canvas>
+
+<div id="message">Évite les trains et récupère les pièces !</div>
+
+<div class="controls">
+    <button id="left">⬅️</button>
+    <button id="jump">⬆️ SAUT</button>
+    <button id="right">➡️</button>
+</div>
+
+<button id="soundBtn">🔊 Son : activé</button>
+<br>
+<a href="page2.html">⬅️CLICK POUR TERJA3 LIBRARY</a>
+
+<!-- شاشة البداية والنهاية -->
+<div class="overlay" id="overlay">
+    <div class="panel">
+        <h2 id="panelTitle">🏃 ARABI RUNNER</h2>
+        <p id="panelText">
+            اجمع القطع الذهبية، تفادى القطارات والحواجز،
+            واستعمل المغناطيس والدرع!
+        </p>
+        <p id="finalStats"></p>
+        <button id="playBtn">▶ PLAY</button>
+        <p class="small">
+            PC: الأسهم أو A / D / Space<br>
+            الهاتف: استعمل الأزرار الموجودة تحت اللعبة
+        </p>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const $ = id => document.getElementById(id);
+
+const lanes = [105, 210, 315];
+
+let state = "menu";
+let player, obstacles, coins, powers;
+let score = 0;
+let collected = 0;
+let speed = 4;
+let frame = 0;
+let spawnTimer = 0;
+let coinTimer = 0;
+let powerTimer = 0;
+let lastTime = 0;
+let soundOn = true;
+let audioCtx = null;
+let trainWarnings = [];
+
+let best = 0;
+
+try {
+    best = Number(localStorage.getItem("ARABI S'ECHAPPE DE LA POLICE") || 0);
+} catch (e) {
+    best = 0;
+}
+
+$("best").textContent = "🏆 Record: " + best;
+
+// ---------- الصوت ----------
+function sound(freq = 500, duration = 0.1, type = "sine") {
+    if (!soundOn) return;
+
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext ||
+                window.webkitAudioContext)();
+        }
+
+        if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+        }
+
+        const oscillator = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.value = freq;
+
+        gain.gain.setValueAtTime(
+            0.07, audioCtx.currentTime
+        );
+        gain.gain.exponentialRampToValueAtTime(
+            0.001, audioCtx.currentTime + duration
+        );
+
+        oscillator.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + duration);
+    } catch (e) {
+        // اللعبة تستمر حتى إلا ما كانش الصوت متاحاً
+    }
+}
+
+$("soundBtn").onclick = () => {
+    soundOn = !soundOn;
+    $("soundBtn").textContent =
+        soundOn ? "🔊 Son : activé" : "🔇 Son : désactivé";
+
+    if (soundOn) sound(600, 0.12);
+};
+
+// ---------- إعداد اللعبة ----------
+function resetGame() {
+    player = {
+        lane: 1,
+        targetLane: 1,
+        jump: 0,
+        vy: 0,
+        shield: 0,
+        magnet: 0,
+        anim: 0
+    };
+
+    obstacles = [];
+    coins = [];
+    powers = [];
+    trainWarnings = [];
+
+    score = 0;
+    collected = 0;
+    speed = 4;
+    frame = 0;
+    spawnTimer = 0;
+    coinTimer = 0;
+    powerTimer = 0;
+
+    updateStats();
+}
+
+function startGame() {
+    resetGame();
+    state = "playing";
+    $("overlay").classList.add("hidden");
+    $("message").textContent =
+        "Bonne chance ! Évite les obstacles !";
+    sound(650, 0.12);
+    lastTime = performance.now();
+}
+
+function endGame() {
+    if (state !== "playing") return;
+
+    state = "over";
+    sound(150, 0.35, "sawtooth");
+
+    if (Math.floor(score) > best) {
+        best = Math.floor(score);
+
+        try {
+            localStorage.setItem("ARABI S'ECHAPPE DE LA POLICE", best);
+        } catch (e) {}
+    }
+
+    updateStats();
+
+    $("panelTitle").textContent = "💥 GAME OVER";
+    $("panelText").textContent =
+        "مزيان! حاول مرة أخرى وحسّن النتيجة ديالك.";
+    $("finalStats").textContent =
+        "Score: " + Math.floor(score) +
+        " | Pièces: " + collected +
+        " | Record: " + best;
+
+    $("playBtn").textContent = "🔄 REJOUER";
+    $("overlay").classList.remove("hidden");
+    $("message").textContent = "Game Over !";
+}
+
+$("playBtn").onclick = startGame;
+
+// ---------- التحكم ----------
+function left() {
+    if (state !== "playing") return;
+    player.targetLane = Math.max(0, player.targetLane - 1);
+    sound(330, 0.06);
+}
+
+function right() {
+    if (state !== "playing") return;
+    player.targetLane = Math.min(2, player.targetLane + 1);
+    sound(390, 0.06);
+}
+
+function jump() {
+    if (state !== "playing" || player.jump > 0) return;
+
+    player.vy = 13;
+    sound(550, 0.12);
+}
+
+$("left").onclick = left;
+$("right").onclick = right;
+$("jump").onclick = jump;
+
+document.addEventListener("keydown", e => {
+    if (["ArrowLeft", "ArrowRight", "ArrowUp", " "].includes(e.key)) {
+        e.preventDefault();
+    }
+
+    if (e.repeat) return;
+
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") left();
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") right();
+    if (e.key === "ArrowUp" || e.key === " ") jump();
+
+    if (e.key === "Enter" && state !== "playing") startGame();
+});
+
+// ---------- إنشاء العقبات والقطع ----------
+function spawnObjects() {
+    spawnTimer++;
+
+    if (spawnTimer > Math.max(28, 65 - speed * 3)) {
+        spawnTimer = 0;
+
+        const lane = Math.floor(Math.random() * 3);
+        const r = Math.random();
+
+        // القطار عندو إنذار قبل ما يوصل للاعب
+        if (r < 0.22) {
+            trainWarnings.push({
+                lane: lane,
+                y: -80,
+                type: "train",
+                warning: true
+            });
+        } else {
+            obstacles.push({
+                lane: lane,
+                y: -45,
+                type: r < 0.57 ? "barrier" : "block"
+            });
+        }
+    }
+
+    coinTimer++;
+
+    if (coinTimer > 17) {
+        coinTimer = 0;
+
+        coins.push({
+            lane: Math.floor(Math.random() * 3),
+            y: -20,
+            taken: false
+        });
+    }
+
+    powerTimer++;
+
+    if (powerTimer > 500) {
+        powerTimer = 0;
+
+        powers.push({
+            lane: Math.floor(Math.random() * 3),
+            y: -35,
+            type: Math.random() < 0.5 ? "magnet" : "shield",
+            taken: false
+        });
+    }
+}
+
+// ---------- رسم الخلفية ----------
+function drawBackground() {
+    const sky = ctx.createLinearGradient(0, 0, 0, 600);
+    sky.addColorStop(0, "#10274a");
+    sky.addColorStop(1, "#36a6a0");
+
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, 420, 600);
+
+    // مبانٍ
+    for (let i = 0; i < 8; i++) {
+        const x = i * 57;
+
+        ctx.fillStyle = i % 2 ? "#1b3556" : "#243f60";
+        ctx.fillRect(x, 85, 42, 170);
+
+        ctx.fillStyle = "#ffe49c";
+
+        for (let j = 0; j < 4; j++) {
+            ctx.fillRect(x + 8, 100 + j * 32, 7, 10);
+            ctx.fillRect(x + 24, 100 + j * 32, 7, 10);
+        }
+    }
+
+    // السكة
+    ctx.fillStyle = "#414957";
+    ctx.beginPath();
+    ctx.moveTo(68, 230);
+    ctx.lineTo(352, 230);
+    ctx.lineTo(420, 600);
+    ctx.lineTo(0, 600);
+    ctx.closePath();
+    ctx.fill();
+
+    // خطوط المسارات
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([22, 18]);
+
+    ctx.beginPath();
+    ctx.moveTo(140, 230);
+    ctx.lineTo(95, 600);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(280, 230);
+    ctx.lineTo(325, 600);
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+    // خطوط حركة السكة
+    ctx.strokeStyle = "#8d96a5";
+    ctx.lineWidth = 2;
+
+    for (let y = 260; y < 600; y += 45) {
+        const yy = y + (frame * speed * 0.8) % 45;
+        const width = (yy - 210) * 0.5;
+
+        ctx.beginPath();
+        ctx.moveTo(210 - width, yy);
+        ctx.lineTo(210 + width, yy);
+        ctx.stroke();
+    }
+}
+
+// ---------- رسم اللاعب المتحرك ----------
+function drawPlayer() {
+    const x = lanes[Math.round(player.lane)];
+    const y = 500 - player.jump;
+    const run = Math.sin(player.anim) * 8;
+
+    // الظل
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.beginPath();
+    ctx.ellipse(x, 548, 25, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // الدرع
+    if (player.shield > 0) {
+        ctx.strokeStyle = "#5be9ff";
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(x, y - 5, 34, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    // الرجلان بحركة الجري
+    ctx.strokeStyle = "#19243a";
+    ctx.lineWidth = 10;
+    ctx.lineCap = "round";
+
+    ctx.beginPath();
+    ctx.moveTo(x - 8, y + 25);
+    ctx.lineTo(x - 12 + run, y + 48);
+    ctx.moveTo(x + 8, y + 25);
+    ctx.lineTo(x + 12 - run, y + 48);
+    ctx.stroke();
+
+    // الجسم
+    ctx.fillStyle = "#25d8f5";
+    ctx.fillRect(x - 17, y - 8, 34, 38);
+
+    // الذراعان
+    ctx.strokeStyle = "#ffc49a";
+    ctx.lineWidth = 7;
+
+    ctx.beginPath();
+    ctx.moveTo(x - 14, y);
+    ctx.lineTo(x - 24, y + run);
+    ctx.moveTo(x + 14, y);
+    ctx.lineTo(x + 24, y - run);
+    ctx.stroke();
+
+    // الرأس
+    ctx.fillStyle = "#ffc49a";
+    ctx.beginPath();
+    ctx.arc(x, y - 22, 15, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#39251e";
+    ctx.beginPath();
+    ctx.arc(x, y - 27, 15, Math.PI, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#172033";
+    ctx.fillRect(x - 6, y - 24, 3, 3);
+    ctx.fillRect(x + 4, y - 24, 3, 3);
+}
+
+// ---------- رسم العقبات ----------
+function drawObstacle(o) {
+    const x = lanes[o.lane];
+    const y = o.y;
+
+    if (o.type === "barrier") {
+        ctx.fillStyle = "#ff514d";
+        ctx.fillRect(x - 28, y, 56, 25);
+
+        ctx.fillStyle = "#fff0ae";
+        ctx.fillRect(x - 18, y + 4, 10, 17);
+        ctx.fillRect(x + 8, y + 4, 10, 17);
+
+        ctx.fillStyle = "#27334b";
+        ctx.fillRect(x - 22, y + 25, 8, 18);
+        ctx.fillRect(x + 14, y + 25, 8, 18);
+    } else {
+        // صندوق
+        ctx.fillStyle = "#9b5de5";
+        ctx.fillRect(x - 25, y, 50, 48);
+
+        ctx.strokeStyle = "#e6d5ff";
+        ctx.lineWidth = 3;
+        ctx.strokeRect(x - 19, y + 6, 38, 36);
+        ctx.beginPath();
+        ctx.moveTo(x - 19, y + 6);
+        ctx.lineTo(x + 19, y + 42);
+        ctx.moveTo(x + 19, y + 6);
+        ctx.lineTo(x - 19, y + 42);
+        ctx.stroke();
+    }
+}
+
+function drawTrain(o) {
+    const x = lanes[o.lane];
+    const y = o.y;
+
+    // جسم القطار
+    ctx.fillStyle = "#e63946";
+    ctx.fillRect(x - 36, y, 72, 125);
+
+    ctx.fillStyle = "#b8f1ff";
+    ctx.fillRect(x - 25, y + 15, 50, 30);
+
+    ctx.fillStyle = "#26364e";
+    ctx.fillRect(x - 25, y + 55, 50, 10);
+
+    ctx.fillStyle = "#ffd447";
+    ctx.fillRect(x - 27, y + 100, 12, 8);
+    ctx.fillRect(x + 15, y + 100, 12, 8);
+}
+
+function drawCoin(c) {
+    const x = lanes[c.lane];
+
+    ctx.fillStyle = "#ffcf33";
+    ctx.beginPath();
+    ctx.arc(x, c.y, 12, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = "#fff1a6";
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = "#946200";
+    ctx.font = "bold 15px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("$", x, c.y + 5);
+}
+
+function drawPower(p) {
+    const x = lanes[p.lane];
+
+    ctx.fillStyle = p.type === "magnet" ? "#ff4fd8" : "#40eaff";
+    ctx.beginPath();
+    ctx.arc(x, p.y, 18, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#172033";
+    ctx.font = "bold 20px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText(p.type === "magnet" ? "M" : "S", x, p.y + 7);
+}
+
+// ---------- تحديث اللعبة ----------
+function update(dt) {
+    if (state !== "playing") return;
+
+    const step = Math.min(dt / 16.67, 2);
+
+    frame += step;
+    score += 0.12 * step;
+    speed = Math.min(8, 4 + score / 100);
+
+    // انتقال سلس بين المسارات
+    player.lane +=
+        (player.targetLane - player.lane) * Math.min(1, 0.24 * step);
+
+    player.anim += 0.25 * step;
+
+    // القفز
+    player.jump += player.vy * step;
+    player.vy -= 0.7 * step;
+
+    if (player.jump < 0) {
+        player.jump = 0;
+        player.vy = 0;
+    }
+
+    if (player.shield > 0) player.shield -= step;
+    if (player.magnet > 0) player.magnet -= step;
+
+    spawnObjects();
+
+    // القطارات
+    for (const t of trainWarnings) {
+        t.y += speed * step;
+
+        if (t.y > 300) {
+            obstacles.push({
+                lane: t.lane,
+                y: t.y,
+                type: "train"
+            });
+            t.y = 9999;
+        }
+    }
+
+    trainWarnings = trainWarnings.filter(t => t.y < 400);
+
+    // العقبات
+    for (const o of obstacles) {
+        o.y += speed * step;
+
+        const sameLane = Math.abs(player.lane - o.lane) < 0.38;
+        const nearPlayer = o.y > 450 && o.y < 535;
+
+        if (sameLane && nearPlayer) {
+            const jumpingOver = player.jump > 48 &&
+                o.type !== "train";
+
+            if (!jumpingOver) {
+                if (player.shield > 0) {
+                    player.shield = 0;
+                    o.y = 9999;
+                    sound(220, 0.2);
+                    $("message").textContent =
+                        "🛡️ الدرع حماك!";
+                } else {
+                    endGame();
+                    return;
+                }
+            }
+        }
+    }
+
+    obstacles = obstacles.filter(o => o.y < 700);
+
+    // القطع الذهبية
+    for (const c of coins) {
+        c.y += speed * step;
+
+        const sameLane =
+            Math.abs(player.lane - c.lane) < 0.48;
+
+        const nearPlayer = c.y > 455 && c.y < 550;
+
+        const magnetic =
+            player.magnet > 0 &&
+            c.y > 400 &&
+            Math.abs(player.lane - c.lane) < 1.5;
+
+        if (!c.taken && (magnetic || (sameLane && nearPlayer))) {
+            c.taken = true;
+            collected++;
+            score += 5;
+            sound(800, 0.08);
+        }
+    }
+
+    coins = coins.filter(c => c.y < 650 && !c.taken);
+
+    // القوى الخاصة
+    for (const p of powers) {
+        p.y += speed * step;
+
+        if (
+            !p.taken &&
+            Math.abs(player.lane - p.lane) < 0.48 &&
+            p.y > 455 &&
+            p.y < 550
+        ) {
+            p.taken = true;
+
+            if (p.type === "magnet") {
+                player.magnet = 600;
+                $("message").textContent =
+                    "🧲 Magnet activé !";
+                sound(900, 0.2);
+            } else {
+                player.shield = 420;
+                $("message").textContent =
+                    "🛡️ Bouclier activé !";
+                sound(650, 0.2);
+            }
+        }
+    }
+
+    powers = powers.filter(p => p.y < 650 && !p.taken);
+
+    updateStats();
+}
+
+function updateStats() {
+    $("score").textContent = "Score: " + Math.floor(score);
+    $("coins").textContent = "🪙 Pièces: " + collected;
+    $("best").textContent = "🏆 Record: " + best;
+}
+
+// ---------- الرسم ----------
+function draw() {
+    drawBackground();
+
+    for (const t of trainWarnings) {
+        if (t.y < 300) {
+            ctx.fillStyle = "#ff4343";
+            ctx.font = "bold 15px Arial";
+            ctx.textAlign = "center";
+            ctx.fillText("⚠ TRAIN !", lanes[t.lane], 215);
+        }
+    }
+
+    for (const o of obstacles) {
+        if (o.type === "train") drawTrain(o);
+        else drawObstacle(o);
+    }
+
+    for (const c of coins) drawCoin(c);
+    for (const p of powers) drawPower(p);
+
+    drawPlayer();
+
+    // عرض مدة القوى المتبقية
+    ctx.textAlign = "left";
+    ctx.font = "bold 13px Arial";
+    ctx.fillStyle = "white";
+
+    if (player.magnet > 0) {
+        ctx.fillText("🧲 MAGNET", 12, 25);
+    }
+
+    if (player.shield > 0) {
+        ctx.fillText("🛡️ SHIELD", 12, 45);
+    }
+
+    if (state === "menu") {
+        ctx.fillStyle = "rgba(0,0,0,.3)";
+        ctx.fillRect(0, 0, 420, 600);
+    }
+}
+
+// ---------- الحلقة الرئيسية ----------
+function loop(now) {
+    const dt = lastTime ? now - lastTime : 16.67;
+    lastTime = now;
+
+    update(dt);
+    draw();
+
+    requestAnimationFrame(loop);
+}
+
+// تشغيل الصفحة
+resetGame();
+state = "menu";
+requestAnimationFrame(loop);
+</script>
+
+</body>
+</html>
