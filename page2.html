@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0c1023">
 <title>EL-ARABI GAME LIBRARY</title>
+<meta name="description" content="EL-ARABI GAME LIBRARY - découvre et joue à des jeux amusants.">
 
 <style>
 :root {
@@ -13,15 +15,12 @@
   --cyan: #46f0ed;
   --pink: #ff4d88;
   --text: #f7f8ff;
+  --muted: #cbd6ff;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
@@ -29,42 +28,21 @@ body {
   font-family: Arial, sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 10% 10%, #423080 0, transparent 32%),
-    radial-gradient(circle at 90% 40%, #07545a 0, transparent 30%),
+    radial-gradient(circle at 10% 5%, #423080 0, transparent 30%),
+    radial-gradient(circle at 95% 35%, #07545a 0, transparent 27%),
     var(--bg);
 }
 
-a {
-  text-decoration: none;
-}
-
-button, a {
-  -webkit-tap-highlight-color: transparent;
-}
+a { text-decoration: none; }
 
 header {
-  padding: 35px 16px 20px;
   text-align: center;
+  padding: 35px 16px 24px;
 }
 
 .logo {
-  font-size: 48px;
+  font-size: 52px;
   margin-bottom: 8px;
-  animation: float 3s ease-in-out infinite;
-}
-
-h1 {
-  margin: 0;
-  color: var(--gold);
-  font-size: clamp(28px, 6vw, 48px);
-  text-shadow: 0 0 20px #ffca3a55;
-}
-
-.subtitle {
-  color: #cbd6ff;
-  line-height: 1.7;
-  margin: 12px auto;
-  max-width: 650px;
 }
 
 .tag {
@@ -74,57 +52,68 @@ h1 {
   background: #46f0ed12;
   border-radius: 30px;
   padding: 8px 15px;
-  font-size: 13px;
-  margin-bottom: 15px;
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+
+h1 {
+  margin: 0;
+  color: var(--gold);
+  font-size: clamp(27px, 5vw, 46px);
+  overflow-wrap: anywhere;
+}
+
+.subtitle {
+  max-width: 650px;
+  margin: 12px auto 0;
+  color: var(--muted);
+  line-height: 1.8;
 }
 
 nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
-  padding: 15px;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  background: #0c1023e8;
+  gap: 9px;
+  padding: 12px;
+  background: #0c1023ed;
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid #ffffff12;
+  border-bottom: 1px solid #ffffff16;
 }
 
 .nav-link {
+  display: inline-block;
+  padding: 10px 14px;
   color: white;
   background: #252d50;
   border: 1px solid #ffffff20;
-  padding: 11px 16px;
-  border-radius: 12px;
+  border-radius: 11px;
   font-size: 14px;
-  transition: .2s;
 }
 
-.nav-link:hover {
-  border-color: var(--cyan);
-  transform: translateY(-2px);
-}
+.nav-link:hover { border-color: var(--cyan); }
 
 main {
   width: min(1100px, 94%);
   margin: auto;
-  padding: 15px 0 40px;
+  padding-bottom: 40px;
 }
 
 .welcome {
   text-align: center;
-  padding: 25px 15px;
+  padding: 25px 12px;
 }
 
 .welcome h2 {
-  font-size: clamp(23px, 4vw, 32px);
   margin: 0 0 10px;
+  font-size: clamp(22px, 4vw, 31px);
 }
 
 .welcome p {
-  color: #cbd6ff;
+  color: var(--muted);
   line-height: 1.8;
 }
 
@@ -133,7 +122,7 @@ main {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   margin: 20px 0;
 }
 
@@ -148,38 +137,55 @@ main {
   font-size: 13px;
 }
 
+.search-wrap { margin: 0 0 20px; }
+
+#gameSearch {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #ffffff25;
+  outline: none;
+  background: #191f3c;
+  color: white;
+  font-size: 16px;
+}
+
+#gameSearch:focus { border-color: var(--cyan); }
+
 .games {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  align-items: stretch;
   gap: 20px;
 }
 
 .game-card {
-  position: relative;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  padding: 18px;
+  min-height: 315px;
   overflow: hidden;
   background: linear-gradient(150deg, #222b50, #171b34);
   border: 1px solid #ffffff20;
-  border-radius: 22px;
-  padding: 22px;
-  min-height: 300px;
-  transition: transform .25s, border-color .25s, box-shadow .25s;
+  border-radius: 19px;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
 }
 
 .game-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   border-color: var(--cyan);
-  box-shadow: 0 12px 35px #00000035;
+  box-shadow: 0 12px 28px #00000030;
 }
 
 .game-icon {
   display: grid;
   place-items: center;
-  height: 125px;
-  font-size: 70px;
-  border-radius: 16px;
-  margin-bottom: 20px;
+  flex: 0 0 115px;
+  height: 115px;
+  font-size: 62px;
+  border-radius: 14px;
+  margin-bottom: 17px;
   background: linear-gradient(135deg, #6947e8, #183c75);
 }
 
@@ -194,34 +200,35 @@ main {
 .game-card h3 {
   margin: 0 0 10px;
   color: var(--gold);
-  font-size: 22px;
+  font-size: 20px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .game-card p {
-  color: #cbd6ff;
+  color: var(--muted);
   line-height: 1.7;
-  margin: 0 0 20px;
+  margin: 0 0 18px;
   flex: 1;
 }
 
 .play {
   display: block;
   width: 100%;
+  margin-top: auto;
   text-align: center;
-  border: 0;
-  border-radius: 12px;
-  padding: 13px;
+  border-radius: 11px;
+  padding: 12px 10px;
   color: #10152c;
   background: var(--gold);
   font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-  transition: .2s;
+  font-size: 14px;
+  transition: background .2s, transform .2s;
 }
 
 .play:hover {
   background: white;
-  transform: scale(1.02);
+  transform: translateY(-2px);
 }
 
 .runner .play {
@@ -234,43 +241,22 @@ main {
   color: #10152c;
 }
 
-.new-game {
-  border: 2px dashed #7d86b7;
-  background: #ffffff08;
-  align-items: center;
-  justify-content: center;
+.no-results {
+  display: none;
   text-align: center;
-}
-
-.new-game .game-icon {
-  width: 115px;
-  height: 115px;
-  background: #ffffff0b;
-  border: 1px solid #ffffff1a;
-  font-size: 55px;
-}
-
-.new-game h3 {
-  color: var(--cyan);
-}
-
-.new-game .play {
-  color: white;
-  background: #6c49d8;
+  padding: 25px;
+  color: var(--muted);
 }
 
 .tips {
-  margin-top: 40px;
+  margin-top: 38px;
   background: #ffffff09;
   border: 1px solid #ffffff18;
-  border-radius: 20px;
-  padding: 24px;
+  border-radius: 18px;
+  padding: 22px;
 }
 
-.tips h2 {
-  margin-top: 0;
-  color: var(--gold);
-}
+.tips h2 { color: var(--gold); margin-top: 0; }
 
 .tips ul {
   padding-left: 24px;
@@ -286,19 +272,19 @@ footer {
   line-height: 1.8;
 }
 
-footer strong {
-  color: var(--gold);
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
+footer strong { color: var(--gold); }
 
 @media (max-width: 480px) {
   header { padding-top: 25px; }
-  .game-card { min-height: 280px; }
-  .nav-link { padding: 10px 12px; }
+  .games { grid-template-columns: 1fr; }
+  .game-card { min-height: 0; }
+  .game-icon { flex-basis: 105px; height: 105px; }
+  .section-title h2 { font-size: 21px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; }
 }
 </style>
 </head>
@@ -334,83 +320,72 @@ footer strong {
   <section id="jeux">
     <div class="section-title">
       <h2>🎯 MES JEUX</h2>
-      <span>اختار اللعبة ديالك 👇</span>
+      <span id="gameCount">7 jeux</span>
     </div>
 
-    <div class="games">
+    <div class="search-wrap">
+      <input
+        id="gameSearch"
+        type="search"
+        placeholder="🔎 قلب على اللعبة بالاسم..."
+        aria-label="Rechercher un jeu"
+      >
+    </div>
+
+    <div class="games" id="gamesGrid">
 
       <article class="game-card runner">
         <div class="game-icon">🏃‍♂️</div>
         <h3>ARABI RUNNER</h3>
-        <p>
-          يلاه أجري! 🏃 تفادى العقبات، جمع النقط،
-          وحاول توصل لأعلى نتيجة.
-        </p>
-        <a class="play" href="page3.html">
-          ▶ JOUER A LBATAL!
-        </a>
+        <p>يلاه أجري! 🏃 تفادى العقبات، جمع النقط، وحاول توصل لأعلى نتيجة.</p>
+        <a class="play" href="page3.html">▶ JOUER A LBATAL!</a>
       </article>
 
       <article class="game-card driver">
         <div class="game-icon">🚗</div>
         <h3>ARABI DRIVER</h3>
-        <p>
-         🚦 تفادى السيارات، جمع الفلوس
-          ورد بالك من البوليس اللي كيتبعك! 🚔
-        </p>
-        <a class="play" href="page4.html">
-          ▶ JOUER A LBATAL!
-        </a>
+        <p>🚦 تفادى السيارات، جمع الفلوس ورد بالك من البوليس اللي كيتبعك! 🚔</p>
+        <a class="play" href="page4.html">▶ JOUER A LBATAL!</a>
       </article>
 
       <article class="game-card">
         <div class="game-icon">🌃</div>
         <h3>ARABI DRIFT: CASA</h3>
-        <p>
-         عيش أجواء كازا فالليل! 🏎️
-        تفادى السيارات، جمع العملات،
-        ودير Drift باش تطلع فالمستويات!
-        </p>
-
-  <a class="play" href="page5.html">
-    ▶ JOUER A LBATAL!
-  </a>
-</article>
+        <p>عيش أجواء كازا فالليل! 🏎️ تفادى السيارات، جمع العملات، ودير Drift باش تطلع فالمستويات!</p>
+        <a class="play" href="page5.html">▶ JOUER A LBATAL!</a>
+      </article>
 
       <article class="game-card">
-  <div class="game-icon">👾</div>
-  <h3>ARABI PHANTOM PROTOCOL</h3>
-  <p>
-    دخل للأرينا ديال المستقبل! ⚡
-    واجه الروبوتات، جمع الطاقة،
-    ونجّي راسك من الموجات ديال الأعداء!
-  </p>
-  <a class="play" href="page6.html">
-    ▶ JOUER A LBATAL!
-  </a>
-</article>
+        <div class="game-icon">👾</div>
+        <h3>ARABI PHANTOM PROTOCOL</h3>
+        <p>دخل للأرينا ديال المستقبل! ⚡ واجه الروبوتات، جمع الطاقة، ونجّي راسك من الموجات ديال الأعداء!</p>
+        <a class="play" href="page6.html">▶ JOUER A LBATAL!</a>
+      </article>
 
       <article class="game-card">
-    <div class="game-icon">🕶️</div>
-    <h3>ARABI SHADOW OPS</h3>
-    <p>
-        🎯 تسلّل للمدينة بلا ما يشوفوك الحراس!
-        جمع المعلومات، تفادى الأعداء،
-        وكمل المهمة ديالك بنجاح!
-    </p>
-    <a class="play" href="page7.html">
-        ▶ JOUER A LBATAL!
-    </a>
-</article>
+        <div class="game-icon">🕶️</div>
+        <h3>ARABI SHADOW OPS</h3>
+        <p>🎯 تسلّل للمدينة بلا ما يشوفوك الحراس! جمع المعلومات، تفادى الأعداء، وكمل المهمة ديالك بنجاح!</p>
+        <a class="play" href="page7.html">▶ JOUER A LBATAL!</a>
+      </article>
 
       <article class="game-card">
-    <div class="game-icon">🏙️</div>
-    <h3>ARABI CITY BUILDER</h3>
-    <p>بني المدينة ديالك، جمع الفلوس، حل أحياء جداد وطلع فالمستويات!</p>
-    <a class="play" href="page8.html">▶ JOUER A LBATAL! </a>
-</article>
+        <div class="game-icon">🏙️</div>
+        <h3>ARABI CITY BUILDER</h3>
+        <p>بني المدينة ديالك، جمع الفلوس، حل أحياء جداد وطلع فالمستويات!</p>
+        <a class="play" href="page8.html">▶ JOUER A LBATAL!</a>
+      </article>
+
+      <article class="game-card">
+        <div class="game-icon">🤸</div>
+        <h3>ARABI STICKMAN PARTY</h3>
+        <p>دخل لعالم Stickman! اكتشف تحديات ممتعة ومغامرات حماسية!</p>
+        <a class="play" href="page9.html">▶ JOUER A LBATAL!</a>
+      </article>
 
     </div>
+
+    <p class="no-results" id="noResults">ما لقينا حتى لعبة بهاد الاسم. جرّب اسم آخر!</p>
   </section>
 
   <section class="tips" id="conseils">
@@ -422,14 +397,36 @@ footer strong {
       <li>كل لعبة جديدة تقدر تزيدها للمكتبة ديالك.</li>
     </ul>
   </section>
-
 </main>
 
 <footer>
   <strong>EL-ARABI GAME LIBRARY 🇲🇦</strong><br>
-  Made with ❤️ and 🎮<br>
+  Made with ❤️ and 🎮<br><br>
   <a class="nav-link" href="ROU7.HTML">⬅️ click pour terja3</a>
 </footer>
+
+<script>
+const search = document.getElementById("gameSearch");
+const cards = [...document.querySelectorAll("#gamesGrid .game-card")];
+const count = document.getElementById("gameCount");
+const noResults = document.getElementById("noResults");
+
+function filterGames() {
+  const query = search.value.trim().toLocaleLowerCase();
+  let visible = 0;
+
+  cards.forEach(card => {
+    const matches = card.textContent.toLocaleLowerCase().includes(query);
+    card.hidden = !matches;
+    if (matches) visible++;
+  });
+
+  count.textContent = visible + (visible === 1 ? " jeu" : " jeux");
+  noResults.style.display = visible ? "none" : "block";
+}
+
+search.addEventListener("input", filterGames);
+</script>
 
 </body>
 </html>
