@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARABI CITY BUILDER</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:#f4f7ff;font-family:Arial,sans-serif}
+button{cursor:pointer;font:inherit}
+header{padding:15px;background:#1b2b43;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{margin:0;font-size:21px;color:#ffd166}
+header a{background:#34465e;color:white;text-decoration:none;padding:10px;border-radius:9px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px}
+.stat,.panel{background:#1b2b43;padding:12px;border-radius:12px;border:1px solid #34465e}
+.stat small{display:block;color:#b9c6d8;margin-bottom:5px}
+.stat b{font-size:19px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:12px;padding:0 12px 15px}
+.cityhead{padding:12px;background:#263951;border-radius:12px 12px 0 0}
+.cityhead h2{margin:0;font-size:17px}
+.cityhead p{font-size:12px;color:#c4d0df}
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;padding:9px;background:#263951}
+.toolbar button,.secondary{padding:9px;border:0;border-radius:8px;background:#405570;color:white}
+.toolbar .active{background:#ffd166;color:#172337;font-weight:bold}
+#map{display:grid;grid-template-columns:repeat(10,minmax(40px,1fr));gap:2px;padding:6px;background:#2f5f3f;min-width:440px}
+.mapwrap{overflow:auto;border-radius:0 0 12px 12px}
+.cell{aspect-ratio:1;border:0;border-radius:4px;background:linear-gradient(#72b87a,#5a9f66);display:flex;align-items:center;justify-content:center;flex-direction:column;position:relative;padding:0;min-width:0;overflow:hidden;color:#fff}
+.cell:hover{filter:brightness(1.18);outline:2px solid white}
+.cell .emoji{font-size:clamp(16px,3vw,26px);opacity:.75}
+.cell small{font-size:8px;opacity:.8}
+.cell.road{background:#5b6572;border-radius:0}
+.cell.locked{background:#243246}
+#cv{display:block;width:100%;height:auto;background:linear-gradient(#a9d8f2,#e3f3e8)}.mapwrap{overflow:hidden}
+.side{display:flex;flex-direction:column;gap:12px}
+.panel h3{margin:0 0 10px;font-size:15px}
+.muted{color:#bdcadb;font-size:12px;line-height:1.5}
+#buildings{display:grid;gap:7px}
+.buildbtn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;padding:7px;background:#142238;color:white;border:1px solid #405570;border-radius:8px}
+.buildbtn:disabled{opacity:.5;cursor:not-allowed}
+.buildbtn.active{border:2px solid #ffd166}
+.buildbtn .icon{width:56px;height:46px;flex:none}
+.buildbtn span:nth-child(2){flex:1;font-size:12px}
+.buildbtn small{display:block;color:#ffd166;margin-top:4px}
+.mission{padding:9px;background:#142238;border-radius:8px;margin-bottom:8px;font-size:12px}
+.progress{height:7px;background:#405570;border-radius:8px;overflow:hidden;margin:7px 0}
+.progress div{height:100%;background:#52d69b}
+.row{display:flex;gap:7px;flex-wrap:wrap}
+.notice{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#101827;border:1px solid #ffd166;border-radius:10px;padding:12px;max-width:90%;text-align:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.notice.show{opacity:1}
+footer{text-align:center;padding:15px;color:#8395ac;font-size:11px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.side{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.side{grid-template-columns:1fr}header h1{font-size:16px}}
+</style>
+</head>
+<body>
+<header>
+<h1>🏙️ ARABI CITY BUILDER</h1>
+<a href="page2.html">↩ رجوع للألعاب</a>
+</header>
+
+<section class="stats">
+<div class="stat"><small>💰 الفلوس</small><b id="money">1500</b></div>
+<div class="stat"><small>⭐ المستوى</small><b id="level">1</b></div>
+<div class="stat"><small>🏠 البنايات</small><b id="count">0</b></div>
+<div class="stat"><small>📈 الدخل / 10 ثواني</small><b id="income">0</b></div>
+<div class="stat"><small>👥 السكان</small><b id="pop">0</b></div>
+</section>
+
+<div class="layout">
+<main>
+<div class="cityhead">
+<h2>🗺️ المدينة ديالك</h2>
+<p>الحي: <b id="district">الحي الأخضر</b> — ضغط على الأرض باش تبني.</p>
+</div>
+<div class="toolbar">
+<button class="active" data-tool="build">🏗️ البناء</button>
+<button data-tool="road">🛣️ الطريق (40)</button>
+<button data-tool="remove">🧹 الهدم</button>
+<button id="collect">💵 جمع المداخيل</button>
+</div>
+<div class="mapwrap"><canvas id="cv" width="640" height="420"></canvas></div>
+<p class="muted">اختار البناية وضغط على أرض فارغة باش تبني، وضغط على بناية باش تطورها (3 مستويات). <b>نصيحة:</b> البناية اللي حدا طريق كتربح 25% زيادة، وكل حديقة حداها كتزيد ليها 10%. المداخيل كتجمع حتى تضغط على «جمع المداخيل» (كتحبس عند ساعة).</p>
+</main>
+
+<aside class="side">
+<section class="panel" id="selpanel"><h3>🔎 البناية المختارة</h3><div id="seltxt" class="muted">ضغط على بناية باش تطورها.</div><div class="row" id="selbtns"></div></section>
+<section class="panel">
+<h3>🧱 اختار البناية</h3>
+<div id="buildings"></div>
+</section>
+<section class="panel">
+<h3>🎯 المهمات</h3>
+<div id="missions"></div>
+</section>
+<section class="panel">
+<h3>🔓 الأحياء</h3>
+<div id="districts"></div>
+</section>
+<section class="panel">
+<h3>💾 الحفظ والتقدم</h3>
+<p class="muted" id="progress">بني أول بناية باش تبدا!</p>
+<div class="progress"><div id="xpbar"></div></div>
+<p class="muted" id="xptext">0 / 100 XP</p>
+<div class="row">
+<button class="secondary" id="save">💾 حفظ</button>
+<button class="secondary" id="reset">🗑️ مدينة جديدة</button>
+</div>
+</section>
+</aside>
+</div>
+<footer>ARABI CITY BUILDER — المدينة ديالك، القواعد ديالك!</footer>
+<div id="notice" class="notice"></div>
+
+<script>
+(()=>{
+"use strict";
+const W=10,H=10,KEY="arabi_city_builder_page8";
+const defs={
+ house:{name:"دار",cost:100,income:4,xp:12,unlock:1},
+ shop:{name:"محل",cost:250,income:12,xp:20,unlock:1},
+ park:{name:"حديقة",cost:180,income:2,xp:18,unlock:1},
+ apartment:{name:"عمارة",cost:500,income:25,xp:35,unlock:2},
+ factory:{name:"مصنع",cost:800,income:40,xp:45,unlock:3},
+ landmark:{name:"معلمة",cost:1200,income:55,xp:65,unlock:4}
+};
+const zones=[
+{name:"الحي الأخضر",min:1,start:0,end:24},
+{name:"حي التجارة",min:2,start:25,end:49},
+{name:"الحي العصري",min:3,start:50,end:74},
+{name:"وسط المدينة",min:5,start:75,end:99}
+];
+const missions=[
+{id:"a",name:"البداية",type:"house",goal:3,reward:200},
+{id:"b",name:"الطرق",type:"road",goal:5,reward:180},
+{id:"c",name:"التجارة",type:"shop",goal:2,reward:300},
+{id:"d",name:"المساحات الخضراء",type:"park",goal:2,reward:250},
+{id:"e",name:"المدينة الكبيرة",type:"apartment",goal:3,reward:500},
+{id:"f",name:"الصناعة",type:"factory",goal:1,reward:450},
+{id:"g",name:"التطوير",type:"up",goal:2,reward:400}
+];
+/* رسم المدينة */
+const TW=32,TH=16,OX=320,OY=96,A=-1,B=1;
+const order=[...Array(100).keys()].sort((a,b)=>(a%W+Math.floor(a/W))-(b%W+Math.floor(b/W)));
+const ctr=n=>[(n%W-Math.floor(n/W))*TW+OX,(n%W+Math.floor(n/W))*TH+OY];
+function poly(c,p,f,o){c.beginPath();p.forEach((q,i)=>i?c.lineTo(q[0],q[1]):c.moveTo(q[0],q[1]));c.closePath();c.fillStyle=f;c.fill();if(o){c.strokeStyle='rgba(0,0,0,.22)';c.lineWidth=.7;c.stroke()}}
+function bx(c,cx,cy,hw,hh,h,t,l,r){
+ poly(c,[[cx-hw,cy],[cx,cy+hh],[cx,cy+hh-h],[cx-hw,cy-h]],l,1);
+ poly(c,[[cx+hw,cy],[cx,cy+hh],[cx,cy+hh-h],[cx+hw,cy-h]],r,1);
+ poly(c,[[cx,cy-hh-h],[cx+hw,cy-h],[cx,cy+hh-h],[cx-hw,cy-h]],t,1);
+}
+function fc(c,cx,cy,hw,hh,sd,u0,u1,v0,v1,f){
+ const P=(u,v)=>sd<0?[cx-hw+u*hw,cy+u*hh-v]:[cx+u*hw,cy+hh-u*hh-v];
+ poly(c,[P(u0,v0),P(u1,v0),P(u1,v1),P(u0,v1)],f,1);
+}
+function tree(c,x,y,r,col){c.fillStyle='#6b4226';c.fillRect(x-1.5,y-r*.6,3,r*.9);c.beginPath();c.arc(x,y-r*1.1,r,0,7);c.fillStyle=col;c.fill();c.beginPath();c.arc(x-r*.3,y-r*1.3,r*.45,0,7);c.fillStyle='#ffffff22';c.fill()}
+function drawBuilding(c,t,lv,cx,cy,v){
+ if(t==="house"){
+  const P=[['#f7f1e3','#e6dcc6','#d4c9b0'],['#f6dcae','#e3c690','#cfae76'],['#e4eef7','#cddbe8','#b8c9db']][v],K=['#2b6cb0','#2f855a','#b83280'][v],h=14+8*(lv-1);
+  bx(c,cx,cy,22,11,h,P[0],P[1],P[2]);
+  for(let f=0;f<lv;f++){const a=3+f*8,e=a+5;
+   fc(c,cx,cy,22,11,A,.15,.4,a,e,'#9fd8f5');fc(c,cx,cy,22,11,A,.58,.83,a,e,'#9fd8f5');
+   fc(c,cx,cy,22,11,B,.15,.4,a,e,'#9fd8f5');if(f){fc(c,cx,cy,22,11,B,.58,.83,a,e,'#9fd8f5');fc(c,cx,cy,22,11,B,.52,.9,a-1.2,a,'#7d6b4f')}}
+  fc(c,cx,cy,22,11,B,.58,.83,0,9,K);
+  bx(c,cx,cy-h,22,11,2,'#efe6d2',P[1],P[2]);
+  if(lv>2)bx(c,cx-7,cy-h-2,5,2.5,5,'#5aa2de','#3b82c4','#2c6aa3');
+ }else if(t==="shop"){
+  const h=16+8*(lv-1);
+  bx(c,cx,cy,22,11,h,'#f6efe2','#e4dccb','#d2c8b4');
+  fc(c,cx,cy,22,11,A,.12,.58,3,11,'#9fd8f5');fc(c,cx,cy,22,11,A,.2,.32,4,7,'#e76f51');fc(c,cx,cy,22,11,A,.38,.5,4,6,'#e9c46a');
+  fc(c,cx,cy,22,11,B,.58,.85,0,10,'#6b4226');fc(c,cx,cy,22,11,B,.1,.4,3,10,'#9fd8f5');
+  [[A,'#d94f4f'],[B,'#c23c3c']].forEach(([sd,col])=>{fc(c,cx,cy,22,11,sd,0,1,11,15,col);[0,.4,.8].forEach(u=>fc(c,cx,cy,22,11,sd,u,u+.2,11,15,'#fff'))});
+  if(lv>1){fc(c,cx,cy,22,11,B,.1,.9,h-6,h-2,'#1f3a5f');fc(c,cx,cy,22,11,B,.35,.65,h-5,h-3,'#ffd166')}
+  bx(c,cx,cy-h,22,11,2,'#efe6d2','#e4dccb','#d2c8b4');
+  if(lv>2)bx(c,cx+5,cy-h-2,5,2.5,6,'#c9d2da','#a9b4bf','#8f9aa6');
+ }else if(t==="park"){
+  poly(c,[[cx,cy-12],[cx+26,cy],[cx,cy+12],[cx-26,cy]],'#3fa357');
+  if(lv>2){c.beginPath();c.ellipse(cx,cy+2,9,4.5,0,0,7);c.fillStyle='#8fd3f4';c.fill();c.strokeStyle='#fff';c.lineWidth=1.5;c.stroke();}
+  const T=[[-11,3,7,'#2e8b3d'],[10,6,6,'#3aa84a']];
+  if(lv>1)T.push([0,-5,8,'#27803a'],[-3,9,5,'#3aa84a']);
+  if(lv>2)T.push([15,-1,5,'#2e8b3d'],[-16,-2,5,'#3aa84a']);
+  T.sort((p,q)=>p[1]-q[1]).forEach(([x,y,r,col])=>tree(c,cx+x,cy+y,r,col));
+ }else if(t==="apartment"){
+  const h=34+10*(lv-1);
+  bx(c,cx,cy,22,11,h,'#b3c7de','#8fb0d2','#7a9dc3');
+  for(let r=0;r<Math.floor((h-9)/8);r++)for(let k=0;k<3;k++){const u=.1+k*.3,a=7+r*8;
+   fc(c,cx,cy,22,11,A,u,u+.2,a,a+4,(r+k)%3?'#e8f6ff':'#ffe9a8');fc(c,cx,cy,22,11,B,u,u+.2,a,a+4,(r*2+k)%3?'#d8ecf8':'#ffe9a8');if(k===1)fc(c,cx,cy,22,11,B,u-.04,u+.24,a-1.2,a,'#6f8fb3')}
+  fc(c,cx,cy,22,11,B,.38,.62,0,5,'#33485f');
+  bx(c,cx,cy-h,22,11,2,'#d4dfec','#8fb0d2','#7a9dc3');
+  if(lv>2){c.fillStyle='#555';c.fillRect(cx-.5,cy-h-16,1,14);}
+ }else if(t==="factory"){
+  bx(c,cx,cy,24,12,16,'#9aa7b5','#8794a3','#74818f');
+  [0,1,2].forEach(i=>fc(c,cx,cy,24,12,A,.08+i*.3,.28+i*.3,7,12,'#ffd166'));
+  fc(c,cx,cy,24,12,B,.2,.6,0,11,'#4c5662');
+  bx(c,cx,cy-16,24,12,2,'#aab6c2','#8794a3','#74818f');
+  const ch=[[-9,-2]];if(lv>1)ch.push([4,-6]);if(lv>2)ch.push([-1,2]);
+  ch.forEach(([x,y],i)=>{bx(c,cx+x,cy-16+y,3,1.5,10+lv*4,'#8a97a4','#6b7885','#56626e');c.beginPath();c.arc(cx+x+2,cy-16+y-12-lv*4-4-((performance.now()/90+i*5)%10),4+i,0,7);c.fillStyle='#ffffff66';c.fill()});
+ }else{
+  bx(c,cx,cy,24,12,12,'#f1e8cc','#e0d3ac','#ccbd90');
+  fc(c,cx,cy,24,12,B,.35,.65,0,8,'#7a4a21');[.1,.7].forEach(u=>fc(c,cx,cy,24,12,A,u,u+.2,3,9,'#8a6a2a'));
+  bx(c,cx,cy-12,24,12,2,'#f6eed2','#e0d3ac','#ccbd90');
+  const th=16+6*lv,ty=cy-14-th;
+  bx(c,cx-9,cy-14,5,2.5,th,'#ecdcaa','#d6c58a','#c2b074');
+  poly(c,[[cx-15,ty],[cx-3,ty],[cx-9,ty-12]],'#1f9d55');
+  c.fillStyle='#d4a017';c.fillRect(cx-9.5,ty-27,1,16);c.fillStyle='#c1272d';c.fillRect(cx-8.5,ty-27,8,5);c.fillStyle='#1f9d55';c.fillRect(cx-5.5,ty-25.5,2,2);
+  if(lv>1){c.beginPath();c.arc(cx+6,cy-14,9,Math.PI,0);c.fillStyle='#27ae60';c.fill();}
+  if(lv>2){c.beginPath();c.arc(cx+17,cy-12,4.5,Math.PI,0);c.fillStyle='#2ecc71';c.fill();c.fillStyle='#d4a017';c.fillRect(cx+5.5,cy-26,1,6)}
+ }
+}
+function icon(cv,t){const c=cv.getContext("2d");poly(c,[[30,8],[58,22],[30,36],[2,22]],'#5a9f66');c.save();c.translate(30,28);c.scale(.62,.62);drawBuilding(c,t,1,0,0,0);c.restore()}
+function draw(){
+ const c=$("cv").getContext("2d");const nt=night(),sk=c.createLinearGradient(0,0,0,420);
+ sk.addColorStop(0,mix('#a9d8f2','#0b1530',nt));sk.addColorStop(1,mix('#e3f3e8','#1d2b4d',nt));c.fillStyle=sk;c.fillRect(0,0,640,420);
+ if(nt>.3)for(let i=0;i<30;i++){c.fillStyle='rgba(255,255,255,'+.8*nt+')';c.fillRect((i*97)%640,(i*53)%120,1.5,1.5)}
+ poly(c,[[OX-320,OY+144],[OX,OY+304],[OX+320,OY+144],[OX+320,OY+158],[OX,OY+318],[OX-320,OY+158]],'#7a5a3a');
+ order.forEach(n=>{const[cx,cy]=ctr(n),gx=n%W,open=unlocked(n),road=roadAt(n);
+  poly(c,[[cx,cy-16],[cx+32,cy],[cx,cy+16],[cx-32,cy]],!open?'#2a3b52':road?'#4b535d':(gx+Math.floor(n/W))%2?'#6fb675':'#66ad6d');
+  if(!open){c.font='14px sans-serif';c.textAlign='center';c.fillStyle='#ffffff99';c.fillText('🔒',cx,cy+5)}
+  else if(road){
+   const gH=(gx>0&&roadAt(n-1))||(gx<W-1&&roadAt(n+1)),gV=roadAt(n-W)||roadAt(n+W);
+   const T=[cx,cy-16],R=[cx+32,cy],Bm=[cx,cy+16],L=[cx-32,cy];
+   c.strokeStyle='#b4bcc5';c.lineWidth=3;
+   [[gx>0&&roadAt(n-1),T,L],[gx<W-1&&roadAt(n+1),R,Bm],[n>=W&&roadAt(n-W),T,R],[n<90&&roadAt(n+W),L,Bm]].forEach(([r,p,q])=>{if(!r){c.beginPath();c.moveTo(p[0],p[1]);c.lineTo(q[0],q[1]);c.stroke()}});
+   c.strokeStyle='#f2d16b';c.lineWidth=1.5;c.setLineDash([4,4]);c.beginPath();
+   if(gH||!gV){c.moveTo(cx-16,cy-8);c.lineTo(cx+16,cy+8)}
+   if(gV){c.moveTo(cx+16,cy-8);c.lineTo(cx-16,cy+8)}
+   c.stroke();c.setLineDash([]);
+   if(n%4===1){c.strokeStyle='#2c3138';c.lineWidth=1.5;c.beginPath();c.moveTo(cx-16,cy+8);c.lineTo(cx-16,cy-6);c.stroke();c.fillStyle='#ffe9a8';c.beginPath();c.arc(cx-16,cy-7,2,0,7);c.fill()}
+  }
+ });
+ [hover,sel].forEach((n,i)=>{if(n==null||n<0||(i===0&&!unlocked(n)))return;const[cx,cy]=ctr(n);
+  c.strokeStyle=i?'#ffd166':'#ffffff';c.lineWidth=2.5;c.beginPath();c.moveTo(cx,cy-16);c.lineTo(cx+32,cy);c.lineTo(cx,cy+16);c.lineTo(cx-32,cy);c.closePath();c.stroke()});
+ const L=[];
+ order.forEach(n=>{const b=buildingAt(n);if(b)L.push([n%W+Math.floor(n/W),0,n,b])});
+ people.forEach(p=>{const[fx,fy]=pos(p);L.push([fx+fy+.02,1,p,[fx,fy]])});
+ cars.forEach(p=>{const[fx,fy]=pos(p);L.push([fx+fy+.03,2,p,[fx,fy]])});
+ order.forEach(n=>{if(!buildingAt(n)&&!roadAt(n)&&unlocked(n)&&(n*37+11)%10<5)L.push([n%W+Math.floor(n/W)-.3,3,n,0])});
+ L.sort((a,b)=>a[0]-b[0]||a[1]-b[1]).forEach(([d,k,o,b])=>{
+  if(k===0){const[cx,cy]=ctr(o);drawBuilding(c,b.type,b.lv,cx,cy,o%3)}
+  else if(k===3){const[cx,cy]=ctr(o);scenery(c,o,cx,cy)}
+  else{const X=(b[0]-b[1])*TW+OX,Y=(b[0]+b[1])*TH+OY+2;if(k===1)drawPerson(c,X,Y,o,o.to!==o.cur);else drawCar(c,X,Y,o)}});
+ if(nt>0){
+  c.fillStyle='rgba(6,14,46,'+.4*nt+')';c.fillRect(0,0,640,420);
+  c.globalCompositeOperation='lighter';
+  s.buildings.forEach(b=>{const[cx,cy]=ctr(b.cell);glow(c,cx,cy-14,28,.5*nt)});
+  roadsList().forEach(n=>{if(n%4===1){const[cx,cy]=ctr(n);glow(c,cx-16,cy-7,24,.6*nt)}});
+  c.globalCompositeOperation='source-over';
+ }
+ c.font='20px sans-serif';c.textAlign='left';c.fillStyle='#fff';c.fillText(nt>.5?'🌙':'☀️',12,28);
+}
+function hit(e){
+ const cv=$("cv"),r=cv.getBoundingClientRect(),px=(e.clientX-r.left)*cv.width/r.width,py=(e.clientY-r.top)*cv.height/r.height;
+ for(let i=order.length-1;i>=0;i--){const n=order[i],[cx,cy]=ctr(n),dx=px-cx,dy=py-cy;
+  if(buildingAt(n)&&Math.abs(dx)<=24&&dy>-72&&dy<13)return n;
+  if(Math.abs(dx)/32+Math.abs(dy)/16<=1)return n;}
+ return -1;
+}
+const upCost=b=>Math.round(defs[b.type].cost*.7*b.lv);
+function renderSel(){
+ const b=sel!=null&&buildingAt(sel),t=$("seltxt"),bt=$("selbtns");bt.innerHTML="";
+ if(!b){sel=null;t.textContent="ضغط على بناية باش تطورها.";return}
+ const d=defs[b.type],inc=Math.round(bIncome(b));
+ t.innerHTML=`<b>${d.name}</b> — المستوى ${b.lv}/3<br>الدخل: +${inc} كل 10 ثواني`+(b.lv<3?`<br>من بعد الترقية: +${Math.round(inc*(1+.6*b.lv)/(1+.6*(b.lv-1)))}`:"<br>🏆 المستوى الأقصى");
+ if(b.lv<3){const u=document.createElement("button");u.className="secondary";u.textContent="⬆️ طور ("+fmt(upCost(b))+")";u.disabled=s.money<upCost(b);u.addEventListener("click",upgrade);bt.appendChild(u)}
+}
+function upgrade(){
+ const b=sel!=null&&buildingAt(sel);if(!b||b.lv>=3)return;
+ const cost=upCost(b);if(s.money<cost){msg("الفلوس ما كافياش!");return}
+ s.money-=cost;b.lv++;s.xp+=defs[b.type].xp;msg("⬆️ تطورات "+defs[b.type].name+" للمستوى "+b.lv+"!");levelUp();renderAll();save(false);
+}
+
+/* الناس */
+const pop=()=>s.buildings.reduce((a,b)=>a+({house:3,shop:1,apartment:8,factory:2,park:0,landmark:0}[b.type])*(b.type==="house"||b.type==="apartment"?b.lv:1),0);
+const SH=['#e63946','#2a9d8f','#e9c46a','#457b9d','#f4a261','#8e5ea2','#f1f1f1'],SK=['#e0ad86','#c68642','#8d5524','#f1c27d'],HR=['#1b1b1b','#3b2a1a','#5a3a22'],PN=['#2b3a55','#3a3a3a','#5b4636'],RB=['#d9d2c0','#6b7f99','#8a6a4a','#3d6b57'];
+let people=[];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+const roadsList=()=>s.roads.filter(unlocked);
+function newPerson(){const r=roadsList();if(!r.length)return null;const n=rnd(r);return{cur:n,to:n,t:1,sp:.45+Math.random()*.5,ph:Math.random()*6,kind:Math.floor(Math.random()*3),shirt:rnd(SH),skin:rnd(SK),hair:rnd(HR),pants:rnd(PN),robe:rnd(RB),scarf:rnd(SH)}}
+function stepList(list,dt,want,mk){
+ while(list.length<want){const p=mk();if(!p)break;list.push(p)}
+ if(list.length>want)list.length=want;
+ list.forEach(p=>{
+  if(p.t>=1){
+   if(!roadAt(p.to)){Object.assign(p,mk()||{});p.t=1;return}
+   const prev=p.cur;p.cur=p.to;
+   const o=nb(p.cur).filter(roadAt),f=o.filter(x=>x!==prev),L=f.length?f:o;
+   p.to=L.length?rnd(L):p.cur;p.t=0;
+  }
+  p.t+=dt*p.sp;
+ });
+}
+function newCar(){const r=roadsList();if(!r.length)return null;const n=rnd(r);return{cur:n,to:n,t:1,sp:1.1+Math.random()*.7,col:rnd(['#d62828','#2a6fdb','#f5f5f5','#f4a261','#2a9d8f','#2b2b2b'])}}
+function stepPeople(dt){
+ const rl=roadsList().length;
+ stepList(people,dt,rl?Math.min(36,Math.ceil(pop()/3)):0,newPerson);
+ stepList(cars,dt,rl>=4?Math.min(10,Math.floor(rl/3)):0,newCar);
+ tod=(tod+dt/150)%1;
+}
+const pos=p=>{const t=Math.min(1,p.t),a=p.cur,b=p.to;return[(a%W)*(1-t)+(b%W)*t,Math.floor(a/W)*(1-t)+Math.floor(b/W)*t]};
+function drawPerson(c,X,Y,p,mv){
+ const sw=mv?Math.sin(performance.now()/110*p.sp*2+p.ph)*2.2:0;
+ c.save();c.translate(X,Y);c.scale(.68,.68);c.lineCap='round';
+ c.fillStyle='#0004';c.beginPath();c.ellipse(0,.5,4.4,1.7,0,0,7);c.fill();
+ const top=p.kind===1?p.robe:p.shirt;
+ if(p.kind===0){
+  c.strokeStyle=p.pants;c.lineWidth=2;c.beginPath();c.moveTo(-1.3,-4.5);c.lineTo(-1.3+sw,0);c.moveTo(1.3,-4.5);c.lineTo(1.3-sw,0);c.stroke();
+  c.fillStyle=top;c.fillRect(-3,-11,6,7);
+ }else{
+  c.fillStyle=top;c.beginPath();c.moveTo(-3,-11);c.lineTo(3,-11);c.lineTo(4.5,-.5);c.lineTo(-4.5,-.5);c.closePath();c.fill();
+ }
+ c.strokeStyle=top;c.lineWidth=1.8;c.beginPath();c.moveTo(-3,-10);c.lineTo(-3.5-sw*.5,-5.5);c.moveTo(3,-10);c.lineTo(3.5+sw*.5,-5.5);c.stroke();
+ c.fillStyle=p.skin;c.beginPath();c.arc(0,-13.5,3,0,7);c.fill();
+ if(p.kind===0){c.fillStyle=p.hair;c.beginPath();c.arc(0,-14,3.1,Math.PI,0);c.fill()}
+ else if(p.kind===1){c.fillStyle=p.robe;c.beginPath();c.arc(0,-14,3.5,Math.PI,0);c.fill();c.beginPath();c.moveTo(-3.4,-14);c.lineTo(0,-19);c.lineTo(3.4,-14);c.fill()}
+ else{c.fillStyle=p.scarf;c.beginPath();c.arc(0,-13.6,3.7,0,7);c.fill();c.fillStyle=p.skin;c.beginPath();c.arc(0,-13.2,2.2,0,7);c.fill()}
+ c.restore();
+}
+let tod=0,cars=[];
+const hx=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
+const mix=(a,b,t)=>{const x=hx(a),y=hx(b);return 'rgb('+x.map((v,i)=>Math.round(v+(y[i]-v)*t)).join(',')+')'};
+const night=()=>Math.max(0,Math.min(1,(.35-Math.cos(tod*Math.PI*2))/.7));
+function glow(c,x,y,r,a){const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(255,200,90,'+a+')');g.addColorStop(1,'rgba(255,200,90,0)');c.fillStyle=g;c.fillRect(x-r,y-r,2*r,2*r)}
+function drawCar(c,X,Y,p){
+ const gx=p.to===p.cur||Math.abs(p.to-p.cur)===1,ax=gx?11:-11,sx=gx?-4:4,sg=p.to-p.cur>=0?1:-1;
+ const K=(f,g,z)=>[X+ax*f+sx*g,Y+5.5*f+2*g-z];
+ const top=[K(1,1,3),K(1,-1,3),K(-1,-1,3),K(-1,1,3)],bot=[K(1,1,0),K(1,-1,0),K(-1,-1,0),K(-1,1,0)];
+ poly(c,bot,'#0005');
+ for(let i=0;i<4;i++){const j=(i+1)%4,q=[bot[i],bot[j],top[j],top[i]];poly(c,q,p.col,1);poly(c,q,'rgba(0,0,0,.3)')}
+ poly(c,top,p.col,1);
+ poly(c,[K(.5,.8,6),K(.5,-.8,6),K(-.5,-.8,6),K(-.5,.8,6)],'#cfe8f7',1);
+ const f=K(sg,0,3);c.fillStyle='#ffe9a8';c.beginPath();c.arc(f[0],f[1],1.4,0,7);c.fill();
+}
+function scenery(c,n,cx,cy){
+ const h=(n*37+11)%10,ox=(n*7)%11-5,oy=(n*3)%5-2;
+ if(h<3)tree(c,cx+ox,cy+oy,6+n%3,['#2e8b3d','#3aa84a','#27803a'][n%3]);
+ else if(h===3)[[-6,2,'#2f8f46'],[1,3,'#3aa84a'],[7,0,'#2e8b3d']].forEach(([x,y,col])=>{c.beginPath();c.arc(cx+x,cy+y,3.5,0,7);c.fillStyle=col;c.fill()});
+ else[[-8,1,'#ff7aa8'],[2,4,'#ffd166'],[9,-1,'#fff'],[-2,-3,'#e0457b']].forEach(([x,y,col])=>{c.beginPath();c.arc(cx+x,cy+y,1.6,0,7);c.fillStyle=col;c.fill()});
+}
+let lastT=performance.now();
+function frame(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;stepPeople(dt);draw();requestAnimationFrame(frame)}
+
+const fresh=()=>({money:1500,xp:0,level:1,buildings:[],roads:[],claimed:[],pending:0,last:Date.now()});
+function load(){
+ try{
+ const s=JSON.parse(localStorage.getItem(KEY));
+ if(!s||!Array.isArray(s.buildings)||!Array.isArray(s.roads))return fresh();
+ return {
+ money:Math.max(0,Number(s.money)||0),
+ xp:Math.max(0,Number(s.xp)||0),
+ level:Math.max(1,Math.floor((Number(s.xp)||0)/100)+1),
+ buildings:s.buildings.filter(b=>b&&Number.isInteger(b.cell)&&b.cell>=0&&b.cell<100&&defs[b.type]).map(b=>({cell:b.cell,type:b.type,lv:Math.min(3,Math.max(1,Math.floor(Number(b.lv))||1))})),
+ roads:s.roads.filter(n=>Number.isInteger(n)&&n>=0&&n<100),
+ claimed:Array.isArray(s.claimed)?s.claimed:[],
+ pending:Math.max(0,Number(s.pending)||0),
+ last:Math.min(Date.now(),Number(s.last)||Date.now())
+ };
+ }catch(e){return fresh()}
+}
+let s=load(),selected="house",tool="build",noticeTimer,sel=null,hover=-1;
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.floor(n).toLocaleString("en-US");
+const buildingAt=n=>s.buildings.find(b=>b.cell===n);
+const roadAt=n=>s.roads.includes(n);
+const nb=n=>{const x=n%W,y=Math.floor(n/W),r=[];if(x>0)r.push(n-1);if(x<W-1)r.push(n+1);if(y>0)r.push(n-W);if(y<H-1)r.push(n+W);return r};
+const bIncome=b=>{const ns=nb(b.cell);let m=1;if(ns.some(roadAt))m+=.25;m+=.1*ns.filter(c=>{const x=buildingAt(c);return x&&x.type==="park"}).length;return defs[b.type].income*m*(1+.6*(b.lv-1))};
+const income=()=>Math.round(s.buildings.reduce((a,b)=>a+bIncome(b),0));
+const countType=t=>t==="road"?s.roads.length:t==="up"?s.buildings.filter(b=>b.lv>=2).length:s.buildings.filter(b=>b.type===t).length;
+function msg(text){
+ $("notice").textContent=text;$("notice").classList.add("show");
+ clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>$("notice").classList.remove("show"),2400);
+}
+function save(show=true){
+ try{localStorage.setItem(KEY,JSON.stringify(s));if(show)msg("💾 تحفظ التقدم ديالك!");}
+ catch(e){if(show)msg("ما قدرناش نحفظو. تأكد من إعدادات المتصفح.");}
+}
+function levelUp(){
+ const old=s.level;s.level=Math.floor(s.xp/100)+1;
+ if(s.level>old){const bonus=s.level*150;s.money+=bonus;msg("🎉 وصلتي للمستوى "+s.level+" وربحتي "+bonus+" درهم!");}
+}
+function unlocked(n){const z=zones.find(z=>n>=z.start&&n<=z.end);return !!z&&s.level>=z.min}
+function tick(){
+ const ticks=Math.floor((Date.now()-s.last)/10000);
+ if(ticks>0){s.last+=ticks*10000;s.pending=Math.min(s.pending+ticks*income(),Math.max(income(),1)*360);}
+}
+function renderStats(){
+ $("money").textContent=fmt(s.money);
+ $("level").textContent=s.level;
+ $("count").textContent=s.buildings.length;
+ $("income").textContent="+"+fmt(income());
+ $("pop").textContent=fmt(pop());
+ $("district").textContent=zones.filter(z=>s.level>=z.min).slice(-1)[0].name;
+ $("xpbar").style.width=(s.xp%100)+"%";
+ $("xptext").textContent=(s.xp%100)+" / 100 XP";
+ $("progress").textContent="عندك "+s.buildings.length+" بناية وكتربح "+fmt(income())+" درهم كل 10 ثواني.";
+ $("collect").textContent="💵 جمع المداخيل ("+fmt(s.pending)+")";
+}
+function renderBuilds(){
+ const box=$("buildings");box.innerHTML="";
+ Object.entries(defs).forEach(([key,b])=>{
+ const btn=document.createElement("button");
+ btn.className="buildbtn"+(selected===key&&tool==="build"?" active":"");
+ btn.disabled=s.level<b.unlock;
+ btn.innerHTML=`<canvas class="icon" width="60" height="50"></canvas><span>${b.name}<small>${s.level<b.unlock?"🔒 المستوى "+b.unlock:fmt(b.cost)+" درهم • +"+b.income+" دخل"}</small></span>`;
+ icon(btn.firstChild,key);
+ btn.addEventListener("click",()=>{selected=key;tool="build";setTool();renderBuilds();msg("اختار أرض فارغة باش تبني "+b.name);});
+ box.appendChild(btn);
+ });
+}
+function renderMap(){draw();}
+function renderMissions(){
+ const box=$("missions");box.innerHTML="";
+ missions.forEach(m=>{
+ const val=countType(m.type),done=val>=m.goal,claimed=s.claimed.includes(m.id);
+ const el=document.createElement("div");el.className="mission";
+ el.innerHTML=`<b>${claimed?"🏆":done?"✅":"🎯"} ${m.name}</b><p>${Math.min(val,m.goal)} / ${m.goal} • الجائزة ${m.reward} درهم</p><div class="progress"><div style="width:${Math.min(100,val/m.goal*100)}%"></div></div>`;
+ if(done&&!claimed){
+ const btn=document.createElement("button");btn.className="secondary";btn.textContent="خد الجائزة";
+ btn.addEventListener("click",()=>{s.claimed.push(m.id);s.money+=m.reward;s.xp+=15;msg("🎉 ربحتي "+m.reward+" درهم!");levelUp();renderAll();save(false);});
+ el.appendChild(btn);
+ }
+ box.appendChild(el);
+ });
+}
+function renderZones(){
+ $("districts").innerHTML=zones.map(z=>`<div class="mission">${s.level>=z.min?"🟢":"🔒"} ${z.name}<p>${s.level>=z.min?"مفتوح":"تحل فالمستوى "+z.min}</p></div>`).join("");
+}
+function renderAll(){renderStats();renderBuilds();renderSel();renderMap();renderMissions();renderZones();}
+function setTool(){document.querySelectorAll("[data-tool]").forEach(b=>b.classList.toggle("active",b.dataset.tool===tool))}
+function act(n){
+ if(!unlocked(n)){const z=zones.find(z=>n>=z.start&&n<=z.end);msg("🔒 هاد الحي كيتحل فالمستوى "+z.min);return;}
+ const b=buildingAt(n);
+ if(tool==="remove"){
+ if(b){s.buildings=s.buildings.filter(x=>x.cell!==n);s.money+=Math.floor(defs[b.type].cost*.3);msg("تهدمات البناية ورجع ليك جزء من ثمنها.");}
+ else if(roadAt(n)){s.roads=s.roads.filter(x=>x!==n);msg("تحيدات الطريق.");}
+ else{msg("ما كاين والو هنا.");return;}
+ }else if(tool==="road"){
+ if(b||roadAt(n)){msg("هاد البلاصة عامرة.");return;}
+ if(s.money<40){msg("خاصك 40 درهم للطريق.");return;}
+ s.money-=40;s.roads.push(n);s.xp+=3;msg("🛣️ زدتي طريق جديدة!");levelUp();
+ }else{
+ if(b){sel=n;renderAll();return;}if(roadAt(n)){msg("اختار أرض فارغة.");return;}
+ const d=defs[selected];
+ if(s.level<d.unlock){msg("خاصك المستوى "+d.unlock);return;}
+ if(s.money<d.cost){msg("الفلوس ما كافياش!");return;}
+ s.money-=d.cost;s.buildings.push({cell:n,type:selected,lv:1});s.xp+=d.xp;msg("🏗️ بنيتي "+d.name+"!");levelUp();
+ }
+ renderAll();save(false);
+}
+document.querySelector(".toolbar").addEventListener("click",e=>{
+ const btn=e.target.closest("[data-tool]");if(!btn)return;
+ tool=btn.dataset.tool;setTool();renderBuilds();
+ if(tool==="road")msg("اختار أرض فارغة للطريق.");
+ if(tool==="remove")msg("اختار بناية أو طريق باش تحيدو.");
+});
+$("collect").addEventListener("click",()=>{
+ tick();
+ if(s.pending<1){msg("⏳ باقي ما كاين والو تجمعو.");return;}
+ const amount=Math.floor(s.pending);s.money+=amount;s.pending-=amount;
+ msg("💰 جمعتي "+fmt(amount)+" درهم!");renderStats();save(false);
+});
+$("save").addEventListener("click",()=>save(true));
+$("reset").addEventListener("click",()=>{
+ if(confirm("واش متأكد بغيتي تمسح المدينة وتبدا من جديد؟")){
+ s=fresh();sel=null;selected="house";tool="build";setTool();renderAll();save(false);msg("بديتي مدينة جديدة!");
+ }
+});
+const cv=$("cv");
+cv.addEventListener("click",e=>{const n=hit(e);if(n>=0)act(n)});
+cv.addEventListener("mousemove",e=>{const n=hit(e);if(n!==hover){hover=n;draw()}});
+cv.addEventListener("mouseleave",()=>{hover=-1;draw()});
+setInterval(()=>{tick();
+ if(s.buildings.length>=3&&Math.random()<1/70){const big=s.buildings.some(b=>b.type==="landmark"),amt=Math.max(80,income()*(big?8:4));s.pending+=amt;msg((big?"🎉 مهرجان فالمدينة! ":"🛍️ سوق أسبوعي! ")+"زادوك "+fmt(amt)+" درهم فالمداخيل")}
+ renderStats();save(false);},1000);
+window.addEventListener("beforeunload",()=>save(false));
+tick();renderAll();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
