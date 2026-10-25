@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090d1c">
+<title>ARABI COLOR CLAIM</title>
+<style>
+:root{--bg:#090d1c;--panel:#151d34;--gold:#ffe45c;--cyan:#46f0ed;--text:#f7f8ff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;padding:12px 12px max(12px,env(safe-area-inset-bottom));color:var(--text);background:radial-gradient(circle at top,#253568,transparent 52%),var(--bg);font-family:Arial,sans-serif;text-align:center;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+header{padding:6px 0 8px}
+.logo{font-size:40px}
+h1{color:var(--gold);font-size:clamp(24px,5vw,40px);margin:6px 0}
+.subtitle{color:#cbd6ff;line-height:1.5;margin:0}
+.game{width:min(850px,100%);margin:auto}
+.hud{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:12px 0 8px}
+.stat{padding:9px 3px;border-radius:11px;background:var(--panel);border:1px solid #ffffff18;font-size:12px}
+.stat strong{display:block;font-size:19px;margin-top:4px}
+.share{display:flex;height:10px;border-radius:8px;overflow:hidden;background:#1d2847;margin-bottom:10px}
+.share i{display:block;height:100%;width:0;transition:width .2s}
+.arena-wrap{position:relative;overflow:hidden;border:2px solid var(--cyan);border-radius:14px;background:#10172a;box-shadow:0 0 24px #46f0ed22;width:min(100%,calc(100vh - 250px));min-width:280px;margin:auto}
+canvas{display:block;width:100%;height:auto;touch-action:none}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px;background:#080d1be8;overflow:auto}
+.overlay.hidden{display:none}
+.overlay-box{max-width:420px;padding:18px;border-radius:18px;border:1px solid #46f0ed66;background:#151d34}
+.overlay h2{color:var(--gold);margin:6px 0}
+.overlay p{line-height:1.6;margin:6px 0}
+button,.back{border:0;border-radius:11px;padding:12px 16px;margin:5px;font-size:15px;font-weight:bold;cursor:pointer;touch-action:manipulation}
+button:focus-visible,.back:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.primary{background:var(--gold);color:#10152c}
+.secondary{background:#29385f;color:#fff}
+.lv{display:flex;justify-content:center;gap:6px;margin:8px 0}
+.lv button{margin:0;padding:9px 12px;background:#29385f;color:#fff;font-size:14px}
+.lv button.on{background:var(--cyan);color:#10152c}
+.controls{display:grid;grid-template-columns:repeat(3,72px);grid-template-rows:repeat(2,60px);justify-content:center;gap:7px;margin:10px auto;user-select:none}
+.controls button{margin:0;padding:5px;font-size:26px;color:#fff;background:#25345b;border:1px solid #ffffff25}
+.controls button:active{background:#4964a5}
+.up{grid-column:2;grid-row:1}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+.mobile-controls{display:none}
+.mobile-controls p{margin:6px 0;font-size:13px;color:#cbd6ff}
+.legend{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin:12px 0;color:#dce2ff;font-size:13px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:12px;height:12px;display:inline-block;border-radius:4px}
+.help{max-width:700px;margin:16px auto;padding:16px;border-radius:15px;background:#ffffff09;color:#cbd6ff;line-height:1.8;text-align:left}
+.back{display:inline-block;margin:14px 0;background:var(--cyan);color:#10152c;text-decoration:none}
+@media(pointer:coarse),(max-width:700px){.mobile-controls{display:block}}
+@media(max-width:600px){body{padding:8px}.hud{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.stat{font-size:11px;padding:8px 2px}.stat strong{font-size:17px}.logo{display:none}.arena-wrap{width:100%}}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="logo">🏍️🎨</div>
+  <h1>ARABI COLOR CLAIM</h1>
+  <p class="subtitle">لوّن الساحة ديالك، نافس 3 روبوتات، وسيطر على أكبر مساحة!</p>
+</header>
+
+<main class="game">
+  <div class="hud">
+    <div class="stat">🔵 أنت<strong id="score0">0%</strong></div>
+    <div class="stat">🔴 روبوت 1<strong id="score1">0%</strong></div>
+    <div class="stat">🟢 روبوت 2<strong id="score2">0%</strong></div>
+    <div class="stat">🟡 روبوت 3<strong id="score3">0%</strong></div>
+    <div class="stat">⏱️ الوقت<strong id="timer">60s</strong></div>
+  </div>
+  <div class="share" id="share"><i style="background:#36a9ff"></i><i style="background:#ff526b"></i><i style="background:#43e69a"></i><i style="background:#ffd84a"></i></div>
+
+  <div class="arena-wrap">
+    <canvas id="arena" aria-label="ساحة لعبة ARABI COLOR CLAIM"></canvas>
+    <div class="overlay" id="overlay">
+      <div class="overlay-box">
+        <div style="font-size:44px">🏍️🤖</div>
+        <h2 id="overlayTitle">ARABI COLOR CLAIM</h2>
+        <p id="overlayText">الجميع كيبدا من 0%. تحرك واحتل المربعات قبل ما يسالي الوقت!</p>
+        <div class="lv" id="lv">
+          <button data-lv="easy">😊 سهل</button>
+          <button data-lv="mid">😎 متوسط</button>
+          <button data-lv="hard">🔥 صعيب</button>
+        </div>
+        <button class="primary" id="startBtn">▶ بدا اللعب</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i class="dot" style="background:#36a9ff"></i> أنت</span>
+    <span><i class="dot" style="background:#ff526b"></i> روبوت أحمر</span>
+    <span><i class="dot" style="background:#43e69a"></i> روبوت أخضر</span>
+    <span><i class="dot" style="background:#ffd84a"></i> روبوت أصفر</span>
+    <span>⚡ سرعة</span><span>💣 قنبلة لون</span>
+  </div>
+
+  <div class="mobile-controls">
+    <p>📱 سحب الصبع فوق الساحة ولا الأزرار</p>
+    <div class="controls">
+      <button class="up" data-dir="up" aria-label="لفوق">⬆️</button>
+      <button class="left" data-dir="left" aria-label="ليسار">⬅️</button>
+      <button class="down" data-dir="down" aria-label="لتحت">⬇️</button>
+      <button class="right" data-dir="right" aria-label="ليمين">➡️</button>
+    </div>
+  </div>
+
+  <button class="secondary" id="pauseBtn">⏸️ وقف</button>
+  <button class="primary" id="restartBtn">🔄 جولة جديدة</button>
+
+  <section class="help">
+    <strong style="color:#ffe45c">🎯 قوانين اللعبة</strong><br>
+    • جميع المتسابقين كيبداو من 0%، والساحة كتكون خاوية.<br>
+    • كل مربع كتدوز منو كيتلوّن بلونك وكيولي محسوب ليك، وتقدر تاخد مربعات المنافسين.<br>
+    • عندك 60 ثانية. اللي عندو أكبر نسبة فالنهاية هو الرابح، ولا تعادل إلا تساوات.<br>
+    • <b>⚡</b> كتزيد ليك فالسرعة 4 ثواني. <b>💣</b> كتلوّن ليك 9 مربعات حواليك.<br>
+    • اختار المستوى (سهل / متوسط / صعيب)، وكيتسجل ليك أحسن نتيجة فكل مستوى.<br>
+    <strong style="color:#ffe45c">🖥️ PC:</strong> الأسهم أو WASD، وSpace للوقف.<br>
+    <strong style="color:#ffe45c">📱 الهاتف:</strong> سحب الصبع على الساحة ولا أزرار الاتجاهات.
+  </section>
+
+  <a href="page2.html" class="back">⬅ رجع لمكتبة الألعاب</a>
+</main>
+
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const canvas = $("arena"), ctx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = canvas.height = Math.round(600 * dpr);
+
+  const SIZE = 30, TOTAL = SIZE * SIZE, ROUND = 60, PLAYER_STEP = 0.13;
+  const LV = { easy: { i: .24, r: .3 }, mid: { i: .19, r: .45 }, hard: { i: .15, r: .65 } };
+  const colors = ["#36a9ff", "#ff526b", "#43e69a", "#ffd84a"];
+  const names = ["أنت", "الروبوت الأحمر", "الروبوت الأخضر", "الروبوت الأصفر"];
+  const DIR = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } };
+
+  let board, players, items, running = false, paused = false, ended = false;
+  let remaining = ROUND, lastTime = 0, hudAcc = 0, spawnT = 4, raf = 0, level = "mid", best = {};
+  try { best = JSON.parse(localStorage.getItem("arabi-color-claim") || "{}"); level = localStorage.getItem("arabi-color-level") || "mid"; } catch (e) {}
+  if (!LV[level]) level = "mid";
+
+  const idx = (x, y) => y * SIZE + x;
+  const inside = (x, y) => x >= 0 && x < SIZE && y >= 0 && y < SIZE;
+  const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+
+  function mk(id, x, y, d) { return { id, x, y, dx: d.x, dy: d.y, q: [], acc: 0, boost: 0 }; }
+
+  function markLevel() {
+    document.querySelectorAll("[data-lv]").forEach(b => b.classList.toggle("on", b.dataset.lv === level));
+  }
+
+  function init() {
+    cancelAnimationFrame(raf); raf = 0;
+    board = new Int8Array(TOTAL).fill(-1);
+    items = [];
+    players = [mk(0, 4, 4, DIR.right), mk(1, 25, 4, DIR.left), mk(2, 4, 25, DIR.right), mk(3, 25, 25, DIR.left)];
+    remaining = ROUND; running = paused = ended = false; lastTime = 0; hudAcc = 0; spawnT = 4;
+    $("overlayTitle").textContent = "ARABI COLOR CLAIM";
+    $("overlayText").textContent = "الجميع كيبدا من 0%." + (best[level] ? " أحسن نتيجة ديالك: " + best[level] + "%" : " عندك 60 ثانية باش تسيطر على أكبر مساحة!");
+    $("startBtn").textContent = "▶ بدا اللعب";
+    $("lv").style.display = "flex";
+    $("overlay").classList.remove("hidden");
+    $("pauseBtn").textContent = "⏸️ وقف";
+    markLevel(); updateHud(); draw();
+  }
+
+  function setDir(n) {
+    if (!running || paused || ended) return;
+    const d = DIR[n], p = players[0], l = p.q.length ? p.q[p.q.length - 1] : { x: p.dx, y: p.dy };
+    if ((l.x === d.x && l.y === d.y) || (l.x === -d.x && l.y === -d.y)) return;
+    if (p.q.length < 2) p.q.push(d);
+  }
+
+  function pick(p) {
+    const opts = Object.values(DIR).filter(d => !(p.dx === -d.x && p.dy === -d.y) && inside(p.x + d.x, p.y + d.y));
+    if (!opts.length) return;
+    let bestS = -Infinity, bestD = [];
+    for (const d of opts) {
+      const nx = p.x + d.x, ny = p.y + d.y, o = board[idx(nx, ny)];
+      let s = Math.random() * 2;
+      s += o === -1 ? 5 : o !== p.id ? 3 : -2;
+      if (items.some(i => i.x === nx && i.y === ny)) s += 4;
+      for (let k = 1; k <= 3; k++) {
+        const tx = nx + d.x * k, ty = ny + d.y * k;
+        if (!inside(tx, ty)) break;
+        if (board[idx(tx, ty)] === -1) s += .8;
+      }
+      if (s > bestS) { bestS = s; bestD = [d]; } else if (s === bestS) bestD.push(d);
+    }
+    const d = bestD[Math.floor(Math.random() * bestD.length)];
+    p.dx = d.x; p.dy = d.y;
+  }
+
+  function step(p) {
+    if (p.q.length) { const d = p.q.shift(); p.dx = d.x; p.dy = d.y; }
+    let nx = p.x + p.dx, ny = p.y + p.dy;
+    if (!inside(nx, ny)) {
+      pick(p); nx = p.x + p.dx; ny = p.y + p.dy;
+      if (!inside(nx, ny)) return;
+    }
+    p.x = nx; p.y = ny; board[idx(nx, ny)] = p.id;
+    const k = items.findIndex(i => i.x === nx && i.y === ny);
+    if (k >= 0) {
+      const it = items.splice(k, 1)[0];
+      if (it.t === "bomb") { for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) if (inside(nx + a, ny + b)) board[idx(nx + a, ny + b)] = p.id; }
+      else p.boost = 4;
+      if (p.id === 0) buzz(25);
+    }
+  }
+
+  function counts() {
+    const c = [0, 0, 0, 0];
+    for (let i = 0; i < TOTAL; i++) if (board[i] >= 0) c[board[i]]++;
+    return c;
+  }
+
+  function updateHud() {
+    const c = counts();
+    c.forEach((n, i) => { $("score" + i).textContent = Math.round(n / TOTAL * 100) + "%"; });
+    document.querySelectorAll("#share i").forEach((el, i) => { el.style.width = (c[i] / TOTAL * 100) + "%"; });
+    $("timer").textContent = Math.ceil(remaining) + "s";
+  }
+
+  function draw() {
+    const cell = canvas.width / SIZE;
+    ctx.fillStyle = "#10172a"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+      const o = board[idx(x, y)], px = x * cell, py = y * cell;
+      if (o >= 0) { ctx.globalAlpha = .85; ctx.fillStyle = colors[o]; ctx.fillRect(px + 1, py + 1, cell - 2, cell - 2); ctx.globalAlpha = 1; }
+      else { ctx.strokeStyle = "#ffffff0b"; ctx.strokeRect(px, py, cell, cell); }
+    }
+    const pulse = 1 + Math.sin(performance.now() / 160) * .12;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    items.forEach(i => {
+      const cx = (i.x + .5) * cell, cy = (i.y + .5) * cell;
+      ctx.beginPath(); ctx.arc(cx, cy, cell * .5 * pulse, 0, 7); ctx.fillStyle = "#ffffff30"; ctx.fill();
+      ctx.font = Math.floor(cell * .8) + "px Arial"; ctx.fillStyle = "#fff"; ctx.fillText(i.t === "bomb" ? "💣" : "⚡", cx, cy);
+    });
+    players.forEach(p => {
+      const cx = (p.x + .5) * cell, cy = (p.y + .5) * cell;
+      ctx.beginPath(); ctx.arc(cx, cy, cell * .44, 0, 7); ctx.fillStyle = colors[p.id]; ctx.fill();
+      ctx.strokeStyle = p.boost > 0 ? "#ffe45c" : "#fff"; ctx.lineWidth = p.boost > 0 ? 3 * dpr : 1.5 * dpr; ctx.stroke();
+      ctx.font = Math.floor(cell * .72) + "px Arial"; ctx.fillStyle = "#fff"; ctx.fillText("🏍️", cx, cy);
+      if (p.id === 0) { ctx.beginPath(); ctx.arc(cx + p.dx * cell * .7, cy + p.dy * cell * .7, cell * .12, 0, 7); ctx.fillStyle = "#fff"; ctx.fill(); }
+    });
+    if (paused && running) {
+      ctx.fillStyle = "#090d1cbb"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#fff"; ctx.font = "bold " + Math.floor(cell * 1.6) + "px Arial"; ctx.fillText("PAUSE", canvas.width / 2, canvas.height / 2);
+    }
+  }
+
+  function finish() {
+    running = paused = false; ended = true; cancelAnimationFrame(raf); raf = 0;
+    updateHud();
+    const c = counts(), max = Math.max(...c), win = c.map((v, i) => v === max ? i : -1).filter(i => i >= 0);
+    const me = Math.round(c[0] / TOTAL * 100);
+    let rec = "";
+    if (me > (best[level] || 0)) { best[level] = me; rec = " 🔥 رقم قياسي جديد!"; try { localStorage.setItem("arabi-color-claim", JSON.stringify(best)); } catch (e) {} }
+    const res = win.length > 1 ? "🤝 تعادل بين: " + win.map(i => names[i]).join(" و ") : "🏆 الرابح هو: " + names[win[0]];
+    $("overlayTitle").textContent = "نهاية الجولة!";
+    $("overlayText").textContent = res + " — السيطرة: " + Math.round(max / TOTAL * 100) + "%. نتيجتك: " + me + "%." + rec;
+    $("startBtn").textContent = "🔄 عاود اللعب";
+    $("lv").style.display = "flex";
+    $("overlay").classList.remove("hidden");
+    $("pauseBtn").textContent = "⏸️ وقف";
+    buzz(win.includes(0) ? [60, 40, 60] : 120);
+    draw();
+  }
+
+  function frame(t) {
+    if (!running || paused || ended) { raf = 0; return; }
+    if (!lastTime) lastTime = t;
+    const dt = Math.min((t - lastTime) / 1000, .05); lastTime = t;
+    remaining = Math.max(0, remaining - dt); hudAcc += dt; spawnT -= dt;
+    for (const p of players) {
+      p.boost = Math.max(0, p.boost - dt); p.acc += dt;
+      const iv = (p.id ? LV[level].i : PLAYER_STEP) * (p.boost > 0 ? .6 : 1);
+      while (p.acc >= iv) {
+        p.acc -= iv;
+        if (p.id && Math.random() < LV[level].r) pick(p);
+        step(p);
+      }
+    }
+    if (spawnT <= 0) {
+      spawnT = 5 + Math.random() * 3;
+      if (items.length < 3) {
+        const x = Math.floor(Math.random() * SIZE), y = Math.floor(Math.random() * SIZE);
+        if (!items.some(i => i.x === x && i.y === y)) items.push({ x, y, t: Math.random() < .5 ? "bomb" : "bolt" });
+      }
+    }
+    if (hudAcc >= .15) { hudAcc = 0; updateHud(); }
+    draw();
+    if (remaining <= 0) { finish(); return; }
+    raf = requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running && !paused) return;
+    if (ended) init();
+    running = true; paused = false; ended = false;
+    $("overlay").classList.add("hidden");
+    $("pauseBtn").textContent = "⏸️ وقف";
+    lastTime = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
+  }
+
+  function pauseToggle() {
+    if (!running || ended) return;
+    paused = !paused;
+    $("pauseBtn").textContent = paused ? "▶ كمل" : "⏸️ وقف";
+    cancelAnimationFrame(raf); raf = 0;
+    if (paused) draw(); else { lastTime = 0; raf = requestAnimationFrame(frame); }
+  }
+
+  $("startBtn").addEventListener("click", start);
+  $("pauseBtn").addEventListener("click", pauseToggle);
+  $("restartBtn").addEventListener("click", () => { init(); start(); });
+  document.querySelectorAll("[data-lv]").forEach(b => b.addEventListener("click", () => {
+    level = b.dataset.lv; try { localStorage.setItem("arabi-color-level", level); } catch (e) {}
+    if (!running) init();
+  }));
+
+  document.addEventListener("keydown", e => {
+    const k = e.key.toLowerCase(), map = { arrowup: "up", w: "up", arrowdown: "down", s: "down", arrowleft: "left", a: "left", arrowright: "right", d: "right" };
+    if (map[k]) { e.preventDefault(); setDir(map[k]); }
+    if ((k === " " || k === "p") && running && !ended) { e.preventDefault(); pauseToggle(); }
+  });
+
+  document.querySelectorAll("[data-dir]").forEach(b => b.addEventListener("pointerdown", e => { e.preventDefault(); setDir(b.dataset.dir); }));
+
+  /* السحب بالصبع فوق الساحة */
+  let sx = 0, sy = 0, sw = false;
+  canvas.addEventListener("pointerdown", e => { sx = e.clientX; sy = e.clientY; sw = true; try { canvas.setPointerCapture(e.pointerId); } catch (x) {} });
+  canvas.addEventListener("pointermove", e => {
+    if (!sw) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 16) return;
+    setDir(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "right" : "left") : (dy > 0 ? "down" : "up"));
+    sx = e.clientX; sy = e.clientY;
+  });
+  ["pointerup", "pointercancel"].forEach(v => canvas.addEventListener(v, () => { sw = false; }));
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && running && !paused && !ended) pauseToggle();
+  });
+
+  init();
+})();
+</script>
+</body>
+</html>
