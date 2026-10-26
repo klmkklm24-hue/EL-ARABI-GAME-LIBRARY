@@ -2,306 +2,258 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0c1023">
 <title>EL-ARABI GAME LIBRARY</title>
 <meta name="description" content="EL-ARABI GAME LIBRARY - découvre et joue à des jeux amusants.">
+<meta property="og:title" content="EL-ARABI GAME LIBRARY">
+<meta property="og:description" content="EL-ARABI GAME LIBRARY - découvre et joue à des jeux amusants.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AE%3C/text%3E%3C/svg%3E">
 
 <style>
 :root {
   --bg: #0c1023;
   --panel: #191f3c;
+  --panel2: #222b50;
   --gold: #ffe45c;
   --cyan: #46f0ed;
   --pink: #ff4d88;
   --text: #f7f8ff;
   --muted: #cbd6ff;
+  --line: #ffffff1c;
 }
 
 * { box-sizing: border-box; }
-
 html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: Arial, sans-serif;
+  font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
   color: var(--text);
   background:
     radial-gradient(circle at 10% 5%, #423080 0, transparent 30%),
     radial-gradient(circle at 95% 35%, #07545a 0, transparent 27%),
     var(--bg);
+  background-attachment: fixed;
+  -webkit-tap-highlight-color: transparent;
 }
 
-a { text-decoration: none; }
+a { text-decoration: none; color: inherit; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; border-radius: 8px; }
 
+.skip {
+  position: absolute; left: 12px; top: -60px; z-index: 50;
+  background: var(--gold); color: #10152c; padding: 10px 14px; border-radius: 10px; font-weight: bold;
+}
+.skip:focus { top: 12px; }
+
+/* ---------- Header ---------- */
 header {
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  padding: 35px 16px 24px;
+  padding: 38px 16px 26px;
 }
+.float { position: absolute; font-size: 30px; opacity: .22; pointer-events: none; animation: bob 7s ease-in-out infinite; }
+.float:nth-child(1) { left: 6%; top: 18%; }
+.float:nth-child(2) { right: 8%; top: 12%; animation-delay: -2s; }
+.float:nth-child(3) { left: 14%; bottom: 8%; animation-delay: -4s; }
+.float:nth-child(4) { right: 15%; bottom: 14%; animation-delay: -1s; }
+@keyframes bob { 50% { transform: translateY(-14px) rotate(8deg); } }
 
-.logo {
-  font-size: 52px;
-  margin-bottom: 8px;
-}
-
+.logo { font-size: 54px; margin-bottom: 8px; filter: drop-shadow(0 6px 14px #0008); }
 .tag {
-  display: inline-block;
-  color: var(--cyan);
-  border: 1px solid #46f0ed66;
-  background: #46f0ed12;
-  border-radius: 30px;
-  padding: 8px 15px;
-  font-size: 12px;
-  margin-bottom: 14px;
+  display: inline-block; color: var(--cyan);
+  border: 1px solid #46f0ed66; background: #46f0ed12;
+  border-radius: 30px; padding: 8px 15px; font-size: 12px; letter-spacing: .08em; margin-bottom: 14px;
 }
-
 h1 {
-  margin: 0;
-  color: var(--gold);
-  font-size: clamp(27px, 5vw, 46px);
-  overflow-wrap: anywhere;
+  margin: 0; font-size: clamp(27px, 5vw, 48px); overflow-wrap: anywhere;
+  background: linear-gradient(90deg, var(--gold), #ffb36b, var(--gold));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
+.subtitle { max-width: 650px; margin: 12px auto 0; color: var(--muted); line-height: 1.9; }
 
-.subtitle {
-  max-width: 650px;
-  margin: 12px auto 0;
-  color: var(--muted);
-  line-height: 1.8;
+.stats { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.stat {
+  min-width: 112px; padding: 10px 16px; border-radius: 14px;
+  background: #ffffff0d; border: 1px solid var(--line);
 }
+.stat b { display: block; color: var(--gold); font-size: 22px; }
+.stat span { font-size: 12px; color: #aeb9df; }
 
+/* ---------- Nav ---------- */
 nav {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 9px;
-  padding: 12px;
-  background: #0c1023ed;
-  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 20;
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 9px;
+  padding: 12px; background: #0c1023ee;
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
   border-bottom: 1px solid #ffffff16;
 }
-
 .nav-link {
-  display: inline-block;
-  padding: 10px 14px;
-  color: white;
-  background: #252d50;
-  border: 1px solid #ffffff20;
-  border-radius: 11px;
-  font-size: 14px;
+  display: inline-block; padding: 10px 14px; color: white;
+  background: #252d50; border: 1px solid #ffffff20; border-radius: 11px; font-size: 14px;
+  transition: border-color .2s, background .2s, transform .2s;
+}
+.nav-link:hover { border-color: var(--cyan); transform: translateY(-1px); }
+.nav-link.active { background: #2f3b6e; border-color: var(--cyan); color: var(--cyan); }
+
+main { width: min(1100px, 94%); margin: auto; padding-bottom: 40px; }
+#accueil, #jeux, #conseils { scroll-margin-top: 84px; }
+
+.welcome { text-align: center; padding: 24px 12px 8px; }
+.welcome h2 { margin: 0 0 10px; font-size: clamp(22px, 4vw, 31px); }
+.welcome p { color: var(--muted); line-height: 1.9; margin: 0; }
+
+.continue {
+  display: none; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 22px 0 0; padding: 14px 18px; border-radius: 16px;
+  background: linear-gradient(120deg, #46f0ed1f, #ff4d881f); border: 1px solid #46f0ed55;
+}
+.continue.show { display: flex; }
+.continue strong { color: var(--gold); }
+.continue a {
+  background: var(--cyan); color: #10152c; font-weight: bold; padding: 10px 16px; border-radius: 11px; font-size: 14px;
 }
 
-.nav-link:hover { border-color: var(--cyan); }
+.section-title { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 26px 0 16px; }
+.section-title h2 { margin: 0; color: var(--cyan); font-size: 24px; }
+.section-title span { color: #aeb9df; font-size: 13px; }
 
-main {
-  width: min(1100px, 94%);
-  margin: auto;
-  padding-bottom: 40px;
+/* ---------- Toolbar ---------- */
+.toolbar { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin-bottom: 12px; }
+#gameSearch, #sortSel {
+  padding: 14px 16px; border-radius: 12px; border: 1px solid #ffffff25; outline: none;
+  background: var(--panel); color: white; font-size: 16px; width: 100%;
 }
-
-.welcome {
-  text-align: center;
-  padding: 25px 12px;
+#sortSel { width: auto; font-size: 14px; }
+#gameSearch:focus, #sortSel:focus { border-color: var(--cyan); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.chip {
+  padding: 9px 14px; border-radius: 999px; border: 1px solid #ffffff25;
+  background: #ffffff0c; font-size: 13px; transition: all .2s;
 }
+.chip:hover { border-color: var(--cyan); }
+.chip[aria-pressed="true"] { background: var(--cyan); color: #10152c; border-color: var(--cyan); font-weight: bold; }
 
-.welcome h2 {
-  margin: 0 0 10px;
-  font-size: clamp(22px, 4vw, 31px);
-}
-
-.welcome p {
-  color: var(--muted);
-  line-height: 1.8;
-}
-
-.section-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 20px 0;
-}
-
-.section-title h2 {
-  margin: 0;
-  color: var(--cyan);
-  font-size: 24px;
-}
-
-.section-title span {
-  color: #aeb9df;
-  font-size: 13px;
-}
-
-.search-wrap { margin: 0 0 20px; }
-
-#gameSearch {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid #ffffff25;
-  outline: none;
-  background: #191f3c;
-  color: white;
-  font-size: 16px;
-}
-
-#gameSearch:focus { border-color: var(--cyan); }
-
-.games {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  align-items: stretch;
-  gap: 20px;
-}
+/* ---------- Cards ---------- */
+.games { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); align-items: stretch; gap: 20px; }
 
 .game-card {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  padding: 18px;
-  min-height: 315px;
-  overflow: hidden;
-  background: linear-gradient(150deg, #222b50, #171b34);
-  border: 1px solid #ffffff20;
-  border-radius: 19px;
-  transition: transform .2s, border-color .2s, box-shadow .2s;
+  --a: #6947e8; --b: #183c75; --acc: var(--gold);
+  position: relative; min-width: 0; display: flex; flex-direction: column;
+  padding: 16px 18px 18px; min-height: 330px; overflow: hidden;
+  background: linear-gradient(150deg, var(--panel2), #171b34);
+  border: 1px solid #ffffff20; border-radius: 20px;
+  transition: transform .25s, border-color .25s, box-shadow .25s;
 }
+.game-card[hidden] { display: none; }
+.game-card::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .25s;
+  background: radial-gradient(circle at 50% 0, color-mix(in srgb, var(--acc) 22%, transparent), transparent 62%);
+}
+.game-card:hover { transform: translateY(-5px); border-color: var(--acc); box-shadow: 0 14px 32px #0000003d; }
+.game-card:hover::before { opacity: 1; }
 
-.game-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--cyan);
-  box-shadow: 0 12px 28px #00000030;
+.card-top { position: relative; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.badge {
+  font-size: 11px; padding: 5px 10px; border-radius: 999px;
+  background: #ffffff10; border: 1px solid var(--line); color: var(--muted);
 }
+.fav {
+  width: 38px; height: 38px; display: grid; place-items: center;
+  border-radius: 50%; border: 1px solid var(--line); background: #ffffff0d; font-size: 18px;
+  transition: transform .2s, background .2s;
+}
+.fav:hover { transform: scale(1.12); }
+.fav[aria-pressed="true"] { background: #ffe45c22; border-color: var(--gold); color: var(--gold); }
 
 .game-icon {
-  display: grid;
-  place-items: center;
-  flex: 0 0 115px;
-  height: 115px;
-  font-size: 62px;
-  border-radius: 14px;
-  margin-bottom: 17px;
-  background: linear-gradient(135deg, #6947e8, #183c75);
+  position: relative; display: grid; place-items: center; flex: 0 0 115px; height: 115px;
+  font-size: 62px; border-radius: 14px; margin-bottom: 17px;
+  background: linear-gradient(135deg, var(--a), var(--b));
+  box-shadow: inset 0 0 0 1px #ffffff1f, 0 8px 18px #0003;
 }
+.game-icon.wide { font-size: 46px; }
 
-.runner .game-icon {
-  background: linear-gradient(135deg, #f05b80, #642d96);
-}
-
-.driver .game-icon {
-  background: linear-gradient(135deg, #007f84, #102b5d);
-}
-
-.game-card h3 {
-  margin: 0 0 10px;
-  color: var(--gold);
-  font-size: 20px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.game-card p {
-  color: var(--muted);
-  line-height: 1.7;
-  margin: 0 0 18px;
-  flex: 1;
-}
+.game-card h3 { margin: 0 0 10px; color: var(--gold); font-size: 20px; line-height: 1.4; overflow-wrap: anywhere; position: relative; }
+.game-card p { color: var(--muted); line-height: 1.8; margin: 0 0 18px; flex: 1; position: relative; }
 
 .play {
-  display: block;
-  width: 100%;
-  margin-top: auto;
-  text-align: center;
-  border-radius: 11px;
-  padding: 12px 10px;
-  color: #10152c;
-  background: var(--gold);
-  font-weight: bold;
-  font-size: 14px;
-  transition: background .2s, transform .2s;
+  position: relative; display: block; width: 100%; margin-top: auto; text-align: center;
+  border-radius: 12px; padding: 13px 10px; color: #10152c; background: var(--acc);
+  font-weight: bold; font-size: 14px; transition: filter .2s, transform .2s;
 }
+.play:hover { filter: brightness(1.12); transform: translateY(-2px); }
 
-.play:hover {
-  background: white;
-  transform: translateY(-2px);
-}
+.no-results { display: none; text-align: center; padding: 28px; color: var(--muted); }
 
-.runner .play {
-  background: var(--pink);
-  color: white;
-}
-
-.driver .play {
-  background: var(--cyan);
-  color: #10152c;
-}
-
-.no-results {
-  display: none;
-  text-align: center;
-  padding: 25px;
-  color: var(--muted);
-}
-
-.tips {
-  margin-top: 38px;
-  background: #ffffff09;
-  border: 1px solid #ffffff18;
-  border-radius: 18px;
-  padding: 22px;
-}
-
+/* ---------- Tips ---------- */
+.tips { margin-top: 38px; background: #ffffff09; border: 1px solid #ffffff18; border-radius: 18px; padding: 22px; }
 .tips h2 { color: var(--gold); margin-top: 0; }
+.tips ul { padding-left: 24px; line-height: 2; color: #dce2ff; }
 
-.tips ul {
-  padding-left: 24px;
-  line-height: 2;
-  color: #dce2ff;
-}
-
-footer {
-  text-align: center;
-  padding: 25px 15px 35px;
-  color: #aeb9df;
-  border-top: 1px solid #ffffff14;
-  line-height: 1.8;
-}
-
+footer { text-align: center; padding: 25px 15px 35px; color: #aeb9df; border-top: 1px solid #ffffff14; line-height: 1.8; }
 footer strong { color: var(--gold); }
 
-@media (max-width: 480px) {
-  header { padding-top: 25px; }
+#toTop {
+  position: fixed; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 30;
+  width: 48px; height: 48px; border-radius: 50%; border: 1px solid #46f0ed66;
+  background: #191f3cee; font-size: 20px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+}
+#toTop.show { opacity: 1; pointer-events: auto; }
+#toTop:hover { transform: translateY(-3px); }
+
+/* reveal */
+.js .game-card { opacity: 0; transform: translateY(18px); }
+.js .game-card.in { opacity: 1; transform: none; }
+.js .game-card.in:hover { transform: translateY(-5px); }
+.js .game-card { transition: opacity .5s, transform .5s, border-color .25s, box-shadow .25s; }
+
+@media (max-width: 560px) {
+  header { padding-top: 26px; }
+  .toolbar { grid-template-columns: 1fr; }
+  #sortSel { width: 100%; }
   .games { grid-template-columns: 1fr; }
   .game-card { min-height: 0; }
   .game-icon { flex-basis: 105px; height: 105px; }
   .section-title h2 { font-size: 21px; }
+  .float { display: none; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { transition: none !important; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .js .game-card { opacity: 1; transform: none; }
 }
 </style>
 </head>
 
 <body>
+<a class="skip" href="#jeux">Passer au contenu</a>
 
 <header id="accueil">
+  <span class="float" aria-hidden="true">🕹️</span>
+  <span class="float" aria-hidden="true">⭐</span>
+  <span class="float" aria-hidden="true">🏆</span>
+  <span class="float" aria-hidden="true">🎲</span>
   <div class="logo">🎮</div>
   <div class="tag">WELCOME TO LIBRARY</div>
   <h1>EL-ARABI GAME LIBRARY</h1>
-  <p class="subtitle">
+  <p class="subtitle" lang="ar" dir="rtl">
     مرحبا بيك فالعالم ديال الألعاب! 🇲🇦<br>
     اختار اللعبة ديالك، لعب، جمع النقط واستمتع!
   </p>
+  <div class="stats" aria-label="Statistiques">
+    <div class="stat"><b id="statGames">9</b><span>jeux</span></div>
+    <div class="stat"><b id="statFav">0</b><span>favoris ⭐</span></div>
+    <div class="stat"><b id="statLast">—</b><span>dernier jeu</span></div>
+  </div>
 </header>
 
-<nav>
+<nav aria-label="Navigation principale">
   <a class="nav-link" href="#accueil">🏠 Accueil</a>
   <a class="nav-link" href="#jeux">🎮 Les jeux</a>
   <a class="nav-link" href="#conseils">⭐ Conseils</a>
@@ -311,108 +263,130 @@ footer strong { color: var(--gold); }
 <main>
   <section class="welcome">
     <h2>🔥 يلاه نبداو اللعب!</h2>
-    <p>
+    <p lang="ar" dir="rtl">
       هادي هي مكتبة الألعاب ديالك.<br>
       اختار اللعبة اللي عجباتك، وبالتوفيق آ بطل!
     </p>
   </section>
 
+  <div class="continue" id="continueBox" aria-live="polite">
+    <span lang="ar" dir="rtl">▶ كمّل فين وقفتي: <strong id="continueName"></strong></span>
+    <a id="continueLink" href="#jeux">JOUER A LBATAL!</a>
+  </div>
+
   <section id="jeux">
     <div class="section-title">
       <h2>🎯 MES JEUX</h2>
-      <span id="gameCount">choisit ton jeux</span>
+      <span id="gameCount" aria-live="polite">choisit ton jeux</span>
     </div>
 
-    <div class="search-wrap">
+    <div class="toolbar">
       <input
         id="gameSearch"
         type="search"
+        dir="auto"
         placeholder="🔎 قلب على اللعبة بالاسم..."
         aria-label="Rechercher un jeu"
+        autocomplete="off"
       >
+      <select id="sortSel" aria-label="Trier les jeux">
+        <option value="default">↕ الترتيب الأصلي</option>
+        <option value="az">A → Z</option>
+        <option value="fav">⭐ المفضلة أولا</option>
+      </select>
+    </div>
+
+    <div class="chips" role="group" aria-label="Catégories">
+      <button class="chip" data-cat="all" aria-pressed="true">🎮 الكل</button>
+      <button class="chip" data-cat="fav" aria-pressed="false">⭐ المفضلة</button>
+      <button class="chip" data-cat="arcade" aria-pressed="false">🕹️ Arcade</button>
+      <button class="chip" data-cat="course" aria-pressed="false">🏎️ Course</button>
+      <button class="chip" data-cat="action" aria-pressed="false">⚔️ Action</button>
+      <button class="chip" data-cat="strategie" aria-pressed="false">🧠 Stratégie</button>
     </div>
 
     <div class="games" id="gamesGrid">
 
-      <article class="game-card runner">
+      <article class="game-card" data-id="runner" data-cat="arcade" style="--a:#f05b80;--b:#642d96;--acc:#ff6b9a">
+        <div class="card-top"><span class="badge">🕹️ Arcade</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI RUNNER aux favoris">☆</button></div>
         <div class="game-icon">🏃‍♂️</div>
         <h3>ARABI RUNNER</h3>
-        <p>يلاه أجري! 🏃 تفادى العقبات، جمع النقط، وحاول توصل لأعلى نتيجة.</p>
+        <p lang="ar" dir="rtl">يلاه أجري! 🏃 تفادى العقبات، جمع النقط، وحاول توصل لأعلى نتيجة.</p>
         <a class="play" href="page3.html">▶ JOUER A LBATAL!</a>
       </article>
 
-      <article class="game-card driver">
+      <article class="game-card" data-id="driver" data-cat="course" style="--a:#007f84;--b:#102b5d;--acc:#46f0ed">
+        <div class="card-top"><span class="badge">🏎️ Course</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI DRIVER aux favoris">☆</button></div>
         <div class="game-icon">🚗</div>
         <h3>ARABI DRIVER</h3>
-        <p>🚦 تفادى السيارات، جمع الفلوس ورد بالك من البوليس اللي كيتبعك! 🚔</p>
+        <p lang="ar" dir="rtl">🚦 تفادى السيارات، جمع الفلوس ورد بالك من البوليس اللي كيتبعك! 🚔</p>
         <a class="play" href="page4.html">▶ JOUER A LBATAL!</a>
       </article>
 
-      <article class="game-card">
+      <article class="game-card" data-id="drift" data-cat="course" style="--a:#ff8a3d;--b:#5b2a86;--acc:#ffa24d">
+        <div class="card-top"><span class="badge">🏎️ Course</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI DRIFT: CASA aux favoris">☆</button></div>
         <div class="game-icon">🌃</div>
         <h3>ARABI DRIFT: CASA</h3>
-        <p>عيش أجواء كازا فالليل! 🏎️ تفادى السيارات، جمع العملات، ودير Drift باش تطلع فالمستويات!</p>
+        <p lang="ar" dir="rtl">عيش أجواء كازا فالليل! 🏎️ تفادى السيارات، جمع العملات، ودير Drift باش تطلع فالمستويات!</p>
         <a class="play" href="page5.html">▶ JOUER A LBATAL!</a>
       </article>
 
-      <article class="game-card">
+      <article class="game-card" data-id="phantom" data-cat="action" style="--a:#27e1a1;--b:#1b3f9a;--acc:#3dffb5">
+        <div class="card-top"><span class="badge">⚔️ Action</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI PHANTOM PROTOCOL aux favoris">☆</button></div>
         <div class="game-icon">👾</div>
         <h3>ARABI PHANTOM PROTOCOL</h3>
-        <p>دخل للأرينا ديال المستقبل! ⚡ واجه الروبوتات، جمع الطاقة، ونجّي راسك من الموجات ديال الأعداء!</p>
+        <p lang="ar" dir="rtl">دخل للأرينا ديال المستقبل! ⚡ واجه الروبوتات، جمع الطاقة، ونجّي راسك من الموجات ديال الأعداء!</p>
         <a class="play" href="page6.html">▶ JOUER A LBATAL!</a>
       </article>
 
-      <article class="game-card">
+      <article class="game-card" data-id="shadow" data-cat="action" style="--a:#2ec4d6;--b:#101c3a;--acc:#5be0f0">
+        <div class="card-top"><span class="badge">⚔️ Action</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI SHADOW OPS aux favoris">☆</button></div>
         <div class="game-icon">🕶️</div>
         <h3>ARABI SHADOW OPS</h3>
-        <p>🎯 تسلّل للمدينة بلا ما يشوفوك الحراس! جمع المعلومات، تفادى الأعداء، وكمل المهمة ديالك بنجاح!</p>
+        <p lang="ar" dir="rtl">🎯 تسلّل للمدينة بلا ما يشوفوك الحراس! جمع المعلومات، تفادى الأعداء، وكمل المهمة ديالك بنجاح!</p>
         <a class="play" href="page7.html">▶ JOUER A LBATAL!</a>
       </article>
 
-      <article class="game-card">
+      <article class="game-card" data-id="city" data-cat="strategie" style="--a:#ffb703;--b:#0e4a7a;--acc:#ffd24a">
+        <div class="card-top"><span class="badge">🧠 Stratégie</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI CITY BUILDER aux favoris">☆</button></div>
         <div class="game-icon">🏙️</div>
         <h3>ARABI CITY BUILDER</h3>
-        <p>بني المدينة ديالك، جمع الفلوس، حل أحياء جداد وطلع فالمستويات!</p>
+        <p lang="ar" dir="rtl">بني المدينة ديالك، جمع الفلوس، حل أحياء جداد وطلع فالمستويات!</p>
         <a class="play" href="page8.html">▶ JOUER A LBATAL!</a>
       </article>
 
-      <article class="game-card">
+      <article class="game-card" data-id="stickman" data-cat="arcade" style="--a:#9be15d;--b:#0b6b4d;--acc:#b8f070">
+        <div class="card-top"><span class="badge">🕹️ Arcade</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI STICKMAN PARTY aux favoris">☆</button></div>
         <div class="game-icon">🤸</div>
         <h3>ARABI STICKMAN PARTY</h3>
-        <p>دخل لعالم Stickman! اكتشف تحديات ممتعة ومغامرات حماسية!</p>
+        <p lang="ar" dir="rtl">دخل لعالم Stickman! اكتشف تحديات ممتعة ومغامرات حماسية!</p>
         <a class="play" href="page9.html">▶ JOUER A LBATAL!</a>
       </article>
 
-      <article class="game-card">
-    <div class="game-icon">🏍️🎨</div>
-    <h3>ARABI COLOR CLAIM</h3>
-    <p>
-        تسابق مع 3 روبوتات ذكية، لوّن الساحة
-        وسيطر على أكبر مساحة باش تربح!
-    </p>
-    <a class="play" href="page10.html">▶ JOUER A LBATAL!</a>
-</article>
+      <article class="game-card" data-id="color" data-cat="arcade" style="--a:#4cc9f0;--b:#b5179e;--acc:#62d3ff">
+        <div class="card-top"><span class="badge">🕹️ Arcade</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI COLOR CLAIM aux favoris">☆</button></div>
+        <div class="game-icon wide">🏍️🎨</div>
+        <h3>ARABI COLOR CLAIM</h3>
+        <p lang="ar" dir="rtl">تسابق مع 3 روبوتات ذكية، لوّن الساحة وسيطر على أكبر مساحة باش تربح!</p>
+        <a class="play" href="page10.html">▶ JOUER A LBATAL!</a>
+      </article>
 
-      <article class="game-card">
-  <div class="game-icon">🥊🔥</div>
-  <h3>ARABI FIGHT</h3>
-  <p>
-    واجه 6 مقاتلين، طوّر مهاراتك،
-    واستعمل الضربات الخاصة باش تولّي بطل الساحة!
-  </p>
-  <a class="play" href="page11.html">
-    ▶ JOUER A LBATAL!
-  </a>
-</article>
+      <article class="game-card" data-id="fight" data-cat="action" style="--a:#ff4d4d;--b:#5a0f2a;--acc:#ff6b6b">
+        <div class="card-top"><span class="badge">⚔️ Action</span><button class="fav" type="button" aria-pressed="false" aria-label="Ajouter ARABI FIGHT aux favoris">☆</button></div>
+        <div class="game-icon wide">🥊🔥</div>
+        <h3>ARABI FIGHT</h3>
+        <p lang="ar" dir="rtl">واجه 6 مقاتلين، طوّر مهاراتك، واستعمل الضربات الخاصة باش تولّي بطل الساحة!</p>
+        <a class="play" href="page11.html">▶ JOUER A LBATAL!</a>
+      </article>
 
     </div>
 
-    <p class="no-results" id="noResults">ما لقينا حتى لعبة بهاد الاسم. جرّب اسم آخر!</p>
+    <p class="no-results" id="noResults" lang="ar" dir="rtl">ما لقينا حتى لعبة بهاد الاسم. جرّب اسم آخر!</p>
   </section>
 
   <section class="tips" id="conseils">
     <h2>🏆 قواعد اللعب ديالنا</h2>
-    <ul>
+    <ul lang="ar" dir="rtl">
       <li>لعب بشوية وخذ وقتك.</li>
       <li>حاول تحطم الرقم القياسي ديالك.</li>
       <li>استمتع باللعب وبالأخلاق الحميدة.</li>
@@ -427,27 +401,137 @@ footer strong { color: var(--gold); }
   <a class="nav-link" href="ROU7.HTML">⬅️ click pour terja3</a>
 </footer>
 
+<button id="toTop" type="button" aria-label="Remonter en haut">⬆</button>
+
 <script>
-const search = document.getElementById("gameSearch");
-const cards = [...document.querySelectorAll("#gamesGrid .game-card")];
-const count = document.getElementById("gameCount");
-const noResults = document.getElementById("noResults");
+(() => {
+  "use strict";
+  document.documentElement.classList.add("js");
 
-function filterGames() {
-  const query = search.value.trim().toLocaleLowerCase();
-  let visible = 0;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const grid = $("#gamesGrid");
+  const cards = $$(".game-card", grid);
+  const search = $("#gameSearch");
+  const sortSel = $("#sortSel");
+  const count = $("#gameCount");
+  const noResults = $("#noResults");
+  const chips = $$(".chip");
 
-  cards.forEach(card => {
-    const matches = card.textContent.toLocaleLowerCase().includes(query);
-    card.hidden = !matches;
-    if (matches) visible++;
+  /* stockage sécurisé */
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  };
+  let favs = new Set(store.get("arabiLibFav", []));
+  const state = { q: "", cat: "all", sort: "default" };
+
+  /* recherche: sans accents ni tashkeel, insensible à la casse */
+  const norm = s => s.toLowerCase().normalize("NFD")
+    .replace(/[\u0300-\u036f\u064b-\u065f\u0670\u0640]/g, "")
+    .replace(/[أإآ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/\s+/g, " ").trim();
+
+  cards.forEach((card, i) => {
+    card.dataset.order = i;
+    card.dataset.name = $("h3", card).textContent.trim();
+    card.dataset.search = norm($("h3", card).textContent + " " + $("p", card).textContent + " " + card.dataset.cat);
   });
 
-  count.textContent = visible + (visible === 1 ? " jeu" : " jeux");
-  noResults.style.display = visible ? "none" : "block";
-}
+  function paintFav(card) {
+    const on = favs.has(card.dataset.id), b = $(".fav", card);
+    b.textContent = on ? "★" : "☆";
+    b.setAttribute("aria-pressed", on);
+    b.setAttribute("aria-label", (on ? "Retirer " : "Ajouter ") + card.dataset.name + (on ? " des favoris" : " aux favoris"));
+  }
 
-search.addEventListener("input", filterGames);
+  function render() {
+    const q = norm(state.q);
+    let list = cards.filter(c => {
+      const okQ = !q || c.dataset.search.includes(q);
+      const okC = state.cat === "all" || (state.cat === "fav" ? favs.has(c.dataset.id) : c.dataset.cat === state.cat);
+      return okQ && okC;
+    });
+    cards.forEach(c => { c.hidden = !list.includes(c); });
+
+    const order = [...cards];
+    if (state.sort === "az") order.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
+    else if (state.sort === "fav") order.sort((a, b) => (favs.has(b.dataset.id) - favs.has(a.dataset.id)) || (a.dataset.order - b.dataset.order));
+    else order.sort((a, b) => a.dataset.order - b.dataset.order);
+    order.forEach(c => grid.appendChild(c));
+
+    count.textContent = list.length + (list.length === 1 ? " jeu" : " jeux");
+    noResults.style.display = list.length ? "none" : "block";
+    $("#statFav").textContent = favs.size;
+  }
+
+  search.addEventListener("input", () => { state.q = search.value; render(); });
+  sortSel.addEventListener("change", () => { state.sort = sortSel.value; render(); });
+  chips.forEach(ch => ch.addEventListener("click", () => {
+    state.cat = ch.dataset.cat;
+    chips.forEach(c => c.setAttribute("aria-pressed", c === ch));
+    render();
+  }));
+
+  /* favoris */
+  cards.forEach(card => {
+    paintFav(card);
+    $(".fav", card).addEventListener("click", () => {
+      const id = card.dataset.id;
+      favs.has(id) ? favs.delete(id) : favs.add(id);
+      store.set("arabiLibFav", [...favs]);
+      paintFav(card);
+      render();
+    });
+  });
+
+  /* dernier jeu joué */
+  const last = store.get("arabiLibLast", null);
+  const known = last && cards.find(c => c.dataset.id === last.id);
+  if (known) {
+    $("#continueName").textContent = known.dataset.name;
+    $("#continueLink").href = $(".play", known).getAttribute("href");
+    $("#continueBox").classList.add("show");
+    $("#statLast").textContent = known.dataset.name.replace("ARABI ", "").slice(0, 14);
+  }
+  cards.forEach(card => $(".play", card).addEventListener("click", () => {
+    store.set("arabiLibLast", { id: card.dataset.id });
+  }));
+
+  /* animations d'apparition */
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+    }), { threshold: .08 });
+    cards.forEach((c, i) => { c.style.transitionDelay = (i % 3) * 70 + "ms"; io.observe(c); });
+  } else cards.forEach(c => c.classList.add("in"));
+
+  /* navigation active */
+  const links = $$("nav .nav-link").filter(a => a.getAttribute("href").startsWith("#"));
+  if ("IntersectionObserver" in window) {
+    const secs = links.map(a => $(a.getAttribute("href"))).filter(Boolean);
+    const spy = new IntersectionObserver(es => es.forEach(e => {
+      if (!e.isIntersecting) return;
+      links.forEach(a => {
+        const on = a.getAttribute("href") === "#" + e.target.id;
+        a.classList.toggle("active", on);
+        on ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current");
+      });
+    }), { rootMargin: "-35% 0px -55% 0px" });
+    secs.forEach(s => spy.observe(s));
+  }
+
+  /* retour en haut + raccourci "/" */
+  const toTop = $("#toTop");
+  addEventListener("scroll", () => toTop.classList.toggle("show", scrollY > 600), { passive: true });
+  toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
+  addEventListener("keydown", e => {
+    if (e.key === "/" && !/input|textarea|select/i.test(document.activeElement.tagName)) {
+      e.preventDefault(); search.focus();
+    }
+  });
+
+  render();
+})();
 </script>
 
 </body>
